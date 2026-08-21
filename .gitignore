@@ -1,0 +1,105 @@
+# =============================================================================
+# GITIGNORE - TCC MLOps Obras Públicas
+# Foco exclusivo no código fonte limpo (src/), testes e dependências
+# =============================================================================
+
+# ─── DADOS BRUTOS, PLANILHAS E DATASETS ──────────────────────────────────────
+dados_brutos/
+data/
+datasets/
+*.xlsx
+*.xls
+*.csv
+*.parquet
+*.feather
+*.jsonl
+*.sqlite
+*.db
+*.sqlite3
+
+# ─── ARQUIVOS DE DOCUMENTAÇÃO E TRABALHOS ACADÊMICOS LOCAIS ─────────────────
+docs/
+Projeto_de_Conclusao_de_curso/
+*.pdf
+*.docx
+*.pptx
+*.odt
+
+# ─── LOGS E HISTÓRICO DE EXECUÇÃO ───────────────────────────────────────────
+logs/
+*.log
+*.log.*
+coletor_editais.log
+
+# ─── SCRIPTS LEGADOS E EXPERIMENTAIS ────────────────────────────────────────
+scripts_legados/
+scratch/
+scratch_*.py
+0*.py
+
+# ─── BINÁRIOS, DRIVERS E EXECUTÁVEIS ─────────────────────────────────────────
+*.exe
+*.dll
+*.so
+*.dylib
+msedgedriver*
+chromedriver*
+geckodriver*
+
+# ─── DUMPS WEB E ARQUIVOS TEMPORÁRIOS ────────────────────────────────────────
+*.html
+*.htm
+*.tmp
+*.temp
+temp/
+tmp/
+tcc_*_temp/
+*.crdownload
+*.zip
+*.rar
+*.7z
+*.tar.gz
+*.bak
+*.swp
+*~
+
+# ─── CREDENCIAIS, SEGREDOS E VARIÁVEIS DE AMBIENTE ──────────────────────────
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+secrets.json
+credentials.json
+
+# ─── AMBIENTE VIRTUAL E DEPENDÊNCIAS PYTHON ─────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ─── PYTHON CACHE E BYTECODE ────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# ─── CONFIGURAÇÕES DE IDES E SISTEMA OPERACIONAL ─────────────────────────────
+.vscode/
+.idea/
+.antigravity/
+.gemini/
+.DS_Store
+Thumbs.db
+desktop.ini
