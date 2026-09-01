@@ -22,6 +22,11 @@ import sys
 import time
 from typing import Any
 
+# Garante a raiz do projeto no sys.path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import pandas as pd
 import requests
 
@@ -323,8 +328,116 @@ def executar_pipeline(
         )
     logger.info("=" * 80)
 
-    return resumo_coleta
+def main() -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Pipeline Central de MLOps: Ingestão de Dados, Coleta de PDFs e Extração de Texto / OCR."
+    )
+    parser.add_argument(
+        "--modo",
+        type=str,
+        choices=["coleta", "parsing", "higienizacao", "completo", "completo-full"],
+        default="coleta",
+        help=(
+            "Modo de operação: 'coleta', 'parsing', 'higienizacao', 'completo' "
+            "(coleta + parsing) ou 'completo-full' (todas as etapas)."
+        ),
+    )
+    parser.add_argument(
+        "--ano",
+        type=str,
+        default=None,
+        help=(
+            "Ano-base do painel (ex.: 2025, 2026). Em higienizacao, a ausência "
+            "processa todos os anos disponíveis; nos demais modos, usa "
+            f"{ANO_BASE}."
+        ),
+    )
+    parser.add_argument(
+        "--base",
+        type=str,
+        default=None,
+        help="Filtrar por base específica (ex: dnit, caixa, funasa, simec, sismob).",
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=MAX_WORKERS,
+        help=f"Número de threads para concorrência paralela. Padrão: {MAX_WORKERS}",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Limite de obras/arquivos a processar por base (ideal para testes).",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Simula a execução sem efetuar gravações em disco.",
+    )
+    parser.add_argument(
+        "--force-ocr",
+        action="store_true",
+        help="No modo parsing, força OCR em todas as páginas dos PDFs.",
+    )
+    parser.add_argument(
+        "--skip-llm",
+        action="store_true",
+        help="No modo higienizacao, mantém apenas a Camada 1 determinística.",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="No modo higienizacao, reprocessa textos já marcados como OK.",
+    )
+
+    args = parser.parse_args()
+
+    # 1. Executa Coleta de PDFs
+    if args.modo in ("coleta", "completo", "completo-full"):
+        ano_operacao = args.ano or ANO_BASE
+        logger.info(f"\n[ENTRYPOINT] Disparando Módulo de Ingestão e Coleta de PDFs (Ano: {ano_operacao})...")
+        bases_alvo = [args.base.strip().lower()] if args.base else None
+        executar_pipeline(
+            limite_obras_por_base=args.limit,
+            bases_alvo=bases_alvo,
+        )
+
+    # 2. Executa Parsing e OCR
+    if args.modo in ("parsing", "completo", "completo-full"):
+        from src.parsers.run_extraction import executar_pipeline_extracao
+
+        ano_operacao = args.ano or ANO_BASE
+        logger.info(f"\n[ENTRYPOINT] Disparando Módulo de Parsing de Texto & OCR (Ano: {ano_operacao})...")
+        executar_pipeline_extracao(
+            ano_base=ano_operacao,
+            base_especifica=args.base,
+            max_workers=args.workers,
+            limite=args.limit,
+            dry_run=args.dry_run,
+            forcar_ocr=args.force_ocr,
+        )
+
+    # 3. Executa Higienização NLP e, seletivamente, Camada 2 com Gemini
+    if args.modo in ("higienizacao", "completo-full"):
+        from src.parsers.run_higienizacao import executar_pipeline_higienizacao
+
+        anos_exibidos = args.ano or "todos os anos disponíveis"
+        logger.info(f"\n[ENTRYPOINT] Disparando Módulo de Higienização NLP (Ano: {anos_exibidos})...")
+        executar_pipeline_higienizacao(
+            ano_base=args.ano,
+            base_especifica=args.base,
+            max_workers=args.workers,
+            limite=args.limit,
+            dry_run=args.dry_run,
+            skip_llm=args.skip_llm,
+            force=args.force,
+        )
+
+    return 0
 
 
 if __name__ == "__main__":
-    executar_pipeline()
+    sys.exit(main())

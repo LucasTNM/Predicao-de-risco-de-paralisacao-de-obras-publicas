@@ -14,6 +14,12 @@ import os
 from pathlib import Path
 import sys
 
+try:
+    from dotenv import load_dotenv
+except ImportError:  # Permite a Camada 1 operar antes da instalação opcional da LLM.
+    def load_dotenv(*args: object, **kwargs: object) -> bool:
+        return False
+
 # ─────────────────────────────────────────────────────────────────────────────
 # CONFIGURAÇÃO DE ANO-BASE E DIRETÓRIOS
 # ─────────────────────────────────────────────────────────────────────────────
@@ -24,14 +30,57 @@ ANO_BASE = "2025"
 # Diretório raiz do projeto local (onde o código é executado)
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
+# Carrega credenciais locais sem expô-las no código-fonte. O arquivo .env é ignorado pelo Git.
+load_dotenv(ROOT_DIR / ".env")
+
 # Caminho raiz obrigatório no Google Drive (Windows)
 BASE_DRIVE = Path(r"G:\Meu Drive\TCC_DOCUMENTOS")
 
 # Particionamento anual de dados brutos no Drive (ex: G:\Meu Drive\TCC_DOCUMENTOS\2025_Dados_brutos)
 PASTA_DADOS_BRUTOS = BASE_DRIVE / f"{ANO_BASE}_Dados_brutos"
 
+# Particionamento anual de textos extraídos no Drive (ex: G:\Meu Drive\TCC_DOCUMENTOS\2025_Textos_extraidos)
+PASTA_TEXTOS_EXTRAIDOS = BASE_DRIVE / f"{ANO_BASE}_Textos_extraidos"
+
 # Arquivo consolidado de log de coleta de documentos no Drive
 ARQUIVO_LOG_COLETA = PASTA_DADOS_BRUTOS / "log_coleta.csv"
+
+# Arquivo consolidado de log de extração de texto no Drive
+ARQUIVO_LOG_EXTRACAO = PASTA_TEXTOS_EXTRAIDOS / "log_extracao.csv"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CARD 5 — HIGIENIZAÇÃO NLP + LLM
+# ─────────────────────────────────────────────────────────────────────────────
+
+# A Camada 2 é opcional: sem chave ou SDK instalada, o pipeline preserva a
+# higienização determinística da Camada 1 e registra a ocorrência no manifesto.
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+# Modelo atual indicado pela API Gemini. Pode ser sobrescrito localmente no .env.
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+GEMINI_RPM_LIMIT = 15
+GEMINI_RPD_LIMIT = 1500
+GEMINI_TEMPERATURA = 0.1
+
+# Pastas multi-ano e limiar de acionamento seletivo da Camada 2.
+ANOS_DISPONIVEIS = ["2025", "2026"]
+PASTA_TEXTOS_LIMPOS = BASE_DRIVE / f"{ANO_BASE}_Textos_Limpos"
+LIMIAR_SUJEIRA_LLM: float = 0.30
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PARÂMETROS E CONSTANTES DE EXTRAÇÃO DE TEXTO & OCR (SPRINT 2)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Localização padrão dos binários nativos no Windows
+TESSERACT_CMD = Path(r"C:\Program Files\Tesseract-OCR\tesseract.exe")
+POPPLER_PATH = Path(r"C:\Users\lucas\AppData\Local\Programs\MiKTeX\miktex\bin\x64")
+
+# Limiares de Decisão de Densidade (caracteres úteis / página)
+LIMIAR_DENSIDADE_NATIVO: float = 200.0   # >= 200: Aceita extração nativa rápida
+LIMIAR_DENSIDADE_PARCIAL: float = 50.0   # 50-199: OCR seletivo apenas em páginas vazias
+LIMIAR_MIN_CHARS_TOTAL: int = 100       # < 100 total pós-OCR: IRRECUPERAVEL
+
+# Resolução de renderização DPI para OCR
+DPI_OCR_PADRAO: int = 200
 
 # Arquivos de entrada e executáveis locais
 PLANILHA_ORIGEM = ROOT_DIR / f"data_{ANO_BASE}.xlsx"
@@ -82,6 +131,38 @@ def obter_pasta_base(nome_base: str) -> Path:
     except Exception as exc:
         logging.getLogger("PipelineObras").warning(
             f"Não foi possível criar o diretório no Drive ({pasta}): {exc}. "
+            "Verifique se o Google Drive está montado e sincronizado."
+        )
+    return pasta
+
+
+def obter_pasta_textos_base(nome_base: str, ano_base: str = ANO_BASE) -> Path:
+    """
+    Retorna e garante a existência da pasta de partição de textos extraídos no Google Drive.
+    Exemplo: G:\\Meu Drive\\TCC_DOCUMENTOS\\2025_Textos_extraidos\\dnit\\
+    """
+    pasta = BASE_DRIVE / f"{ano_base}_Textos_extraidos" / nome_base.strip().lower()
+    try:
+        pasta.mkdir(parents=True, exist_ok=True)
+    except Exception as exc:
+        logging.getLogger("PipelineObras").warning(
+            f"Não foi possível criar o diretório de textos no Drive ({pasta}): {exc}. "
+            "Verifique se o Google Drive está montado e sincronizado."
+        )
+    return pasta
+
+
+def obter_pasta_textos_limpos_base(nome_base: str, ano_base: str = ANO_BASE) -> Path:
+    """
+    Retorna e garante a pasta de saída da higienização para uma base e ano-base.
+    Exemplo: G:\\Meu Drive\\TCC_DOCUMENTOS\\2025_Textos_Limpos\\dnit\\
+    """
+    pasta = BASE_DRIVE / f"{ano_base}_Textos_Limpos" / nome_base.strip().lower()
+    try:
+        pasta.mkdir(parents=True, exist_ok=True)
+    except Exception as exc:
+        logging.getLogger("PipelineObras").warning(
+            f"Não foi possível criar o diretório de textos limpos no Drive ({pasta}): {exc}. "
             "Verifique se o Google Drive está montado e sincronizado."
         )
     return pasta

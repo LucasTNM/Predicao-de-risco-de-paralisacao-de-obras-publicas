@@ -11,5 +11,19 @@ six==1.17.0
 tzdata==2026.3
 urllib3==2.7.0
 selenium
+beautifulsoup4==4.13.4
 pypdf==6.16.1
 fpdf2==2.8.8
+PyMuPDF==1.28.2
+pytesseract==0.3.13
+pdf2image==1.17.0
+Pillow==12.3.0
+
+# ─── Card 5: Higienização NLP ───────────────────────────────────────────────
+spacy==3.8.7
+nltk==3.9.1
+google-generativeai==0.8.5
+python-dotenv==1.1.0
+
+# ─── Testes automatizados ───────────────────────────────────────────────────
+pytest==8.3.5
