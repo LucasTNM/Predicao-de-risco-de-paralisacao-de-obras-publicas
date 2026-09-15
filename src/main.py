@@ -337,11 +337,11 @@ def main() -> int:
     parser.add_argument(
         "--modo",
         type=str,
-        choices=["coleta", "parsing", "higienizacao", "completo", "completo-full"],
+        choices=["coleta", "parsing", "higienizacao", "completo", "completo-full", "schema", "carga", "validar-banco"],
         default="coleta",
         help=(
             "Modo de operação: 'coleta', 'parsing', 'higienizacao', 'completo' "
-            "(coleta + parsing) ou 'completo-full' (todas as etapas)."
+            "(coleta + parsing), 'completo-full' (ingestao completa), 'schema', 'carga' ou 'validar-banco'."
         ),
     )
     parser.add_argument(
@@ -349,7 +349,7 @@ def main() -> int:
         type=str,
         default=None,
         help=(
-            "Ano-base do painel (ex.: 2025, 2026). Em higienizacao, a ausência "
+            "Ano-base do painel (ex.: 2025, 2026). Em higienizacao e carga, a ausência "
             "processa todos os anos disponíveis; nos demais modos, usa "
             f"{ANO_BASE}."
         ),
@@ -375,12 +375,17 @@ def main() -> int:
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Simula a execução sem efetuar gravações em disco.",
+        help="Simula sem alterar fontes/banco; em carga, gera somente relatorio local.",
     )
     parser.add_argument(
         "--force-ocr",
         action="store_true",
         help="No modo parsing, força OCR em todas as páginas dos PDFs.",
+    )
+    parser.add_argument(
+        "--excluir-quarentena",
+        action="store_true",
+        help="Em carga, autoriza somente o lote elegivel apos revisar a destinacao das quarentenas; nao as inclui.",
     )
     parser.add_argument(
         "--skip-llm",
@@ -390,10 +395,33 @@ def main() -> int:
     parser.add_argument(
         "--force",
         action="store_true",
-        help="No modo higienizacao, reprocessa textos já marcados como OK.",
+        help="Reprocessa higienizacao ou substitui transacionalmente documentos alterados na carga.",
     )
 
     args = parser.parse_args()
+
+    if args.modo == "schema":
+        if args.dry_run:
+            parser.error("Use --modo carga --dry-run para preflight; schema aplica o DDL.")
+        import json
+        from src.database.schema import apply_schema
+        print(json.dumps(apply_schema(), ensure_ascii=False))
+        return 0
+    if args.modo == "validar-banco":
+        import json
+        from src.database.connection import connect
+        from src.database.validation import validate_data
+        with connect() as conn:
+            conn.read_only = True
+            with conn.transaction():
+                result = validate_data(conn)
+        print(json.dumps(result, ensure_ascii=False))
+        return 0 if result["valido"] else 1
+    if args.modo == "carga":
+        from src.database.run_load import run_load
+        result = run_load(args.ano, args.base, args.limit, args.dry_run, args.force,
+                          exclude_quarantine=args.excluir_quarentena)
+        return 2 if result["status"] == "PARCIAL" or result.get("prontidao") == "BLOQUEADO" else 0
 
     # 1. Executa Coleta de PDFs
     if args.modo in ("coleta", "completo", "completo-full"):

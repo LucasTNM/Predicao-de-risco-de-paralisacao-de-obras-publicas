@@ -66,6 +66,11 @@ ANOS_DISPONIVEIS = ["2025", "2026"]
 PASTA_TEXTOS_LIMPOS = BASE_DRIVE / f"{ANO_BASE}_Textos_Limpos"
 LIMIAR_SUJEIRA_LLM: float = 0.30
 
+# Sprint 3: os caminhos anuais sao resolvidos pelo carregador em tempo de execucao.
+TOKENIZER_NAME = os.getenv("TOKENIZER_NAME", "neuralmind/bert-base-portuguese-cased")
+TOKENIZER_REVISION = os.getenv("TOKENIZER_REVISION", "94d69c95f98f7d5b2a8700c420230ae10def0baa")
+CHUNKING_VERSION = os.getenv("CHUNKING_VERSION", "sliding-window-v1")
+
 # ─────────────────────────────────────────────────────────────────────────────
 # PARÂMETROS E CONSTANTES DE EXTRAÇÃO DE TEXTO & OCR (SPRINT 2)
 # ─────────────────────────────────────────────────────────────────────────────

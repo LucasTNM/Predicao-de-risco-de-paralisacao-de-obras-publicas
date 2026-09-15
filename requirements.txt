@@ -27,3 +27,11 @@ python-dotenv==1.1.0
 
 # ─── Testes automatizados ───────────────────────────────────────────────────
 pytest==8.3.5
+
+# Sprint 3: PostgreSQL e tokenizacao BERT (sem pesos do modelo)
+psycopg[binary]==3.3.5
+transformers==4.57.6
+tokenizers==0.22.2
+
+# Governanca / Spec-Driven Development (instalar somente na .venv)
+specify-cli==1.0.6

@@ -66,6 +66,7 @@ tcc_*_temp/
 # ─── CREDENCIAIS, SEGREDOS E VARIÁVEIS DE AMBIENTE ──────────────────────────
 .env
 .env.*
+!.env.example
 *.env
 *.pem
 *.key
@@ -103,3 +104,10 @@ build/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ─── PLANOS DE IMPLEMENTAÇÃO INTERNOS ────────────────────────────────────────
+planos/
+
+# Spec Kit: versionar .specify/, .agents/skills/ e specs/.
+# Estado local e overrides ficam nas regras oficiais de .specify/.gitignore.
+# Nao ignorar essas arvores inteiras nem liberar credenciais/dados nelas.

@@ -1,0 +1,26 @@
+name: tcc-sprint3
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.6-pg17-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tcc_obras
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configure POSTGRES_PASSWORD no .env}
+      TCC_APP_PASSWORD: ${TCC_APP_PASSWORD:?Configure TCC_APP_PASSWORD no .env}
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=C.UTF-8
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/bootstrap.sh:/docker-entrypoint-initdb.d/001-bootstrap.sh:ro
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d tcc_obras"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    shm_size: 256mb
+
+volumes:
+  postgres_data:

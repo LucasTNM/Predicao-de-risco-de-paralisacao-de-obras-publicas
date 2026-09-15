@@ -185,6 +185,7 @@ class TestOrquestradorHigienizacao(unittest.TestCase):
         self.assertEqual(estatisticas.processados_lote, 0)
         self.assertTrue(estatisticas.observacoes)
 
+    @patch("src.parsers.limpeza_llm.GEMINI_API_KEY", "")
     def test_fallback_sem_chave_gemini_persiste_camada1(self) -> None:
         (self.entrada / "tabela_degradada.txt").write_text("□" * 40, encoding="utf-8")
         estatisticas = executar_pipeline_higienizacao(
