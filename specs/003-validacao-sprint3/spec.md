@@ -104,7 +104,13 @@ resultados com o relatório e listar pendências operacionais separadamente.
 - **SC-004**: Relatório explicita quais volumes foram efetivamente validados e
   quais dependem de homologação operacional posterior.
 
-## Assumptions
+## Fechamento solicitado em 2026-09-17
+
+- **FR-010**: Revisar exclusões do Git para ambientes, dados, dumps e documentos locais, mantendo código e governança versionáveis.
+- **FR-011**: Produzir relatório visual local das Sprints 2 e 3 para orientação, com modelo relacional, integridade, fragmentação, resultados datados e limites científicos.
+- **FR-012**: Validar o conteúdo selecionado da Sprint 3 e publicá-lo na branch de trabalho no GitHub, preservando alterações locais da Sprint 4 fora deste commit.
+
+## Premissas originais
 
 - Esta revisão preserva alterações locais anteriores e usa base de teste isolada.
 - Consulta ao corpus/banco existente é somente leitura; carga integral é etapa

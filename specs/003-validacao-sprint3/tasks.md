@@ -63,3 +63,9 @@ reprodução e teste. Concluir com relatório e convergência, sem commit autom�
 
 - [x] T017 [US2] Limitar a cinco leituras concorrentes e dez documentos pendentes em src/database/preflight.py, preservando ordem e quarentenas; validar equivalência em tests/test_database_preflight.py.
 - [x] T018 [US3] Expor progresso do preflight físico em src/database/run_load.py e registrar a execução real em validation.md.
+
+## Phase 8: Fechamento solicitado
+
+- [x] T019 Revisar regras de exclusão e arquivos rastreados conforme FR-010.
+- [x] T020 Produzir e revisar visualmente relatório local das Sprints 2 e 3 conforme FR-011.
+- [x] T021 Testar conteúdo selecionado, conferir escopo e preparar publicação do commit da Sprint 3 na branch de trabalho conforme FR-012; limite da integração atual em validation.md.

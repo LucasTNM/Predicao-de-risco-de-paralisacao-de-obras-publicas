@@ -1,5 +1,39 @@
 # Validação da Sprint 3 — 2026-09-10
 
+## Revisão de fechamento em 2026-09-17
+
+- Escopo do novo commit: `.gitignore`, registros Spec Kit de fechamento e evidências
+  da carga de 2026. Nenhuma alteração de código, testes, dependências ou DDL.
+- Regras adicionadas: ambientes `.venv-*`, caches tox/nox/pip e dumps/estado local
+  do PostgreSQL. `git ls-files -ci --exclude-standard` não encontrou arquivos
+  rastreados que precisassem ser retirados do índice. SQL e governança preservados.
+- Relatório visual local de oito páginas produzido em
+  `docs/Relatorio_Sprints_2_e_3_Orientacao.pdf`, revisado página a página, com modelo,
+  cardinalidades, chaves, proveniência, fragmentação, transações e limites científicos.
+  O PDF, seu gerador, corpus, logs e credenciais permanecem ignorados.
+- Seleção do índice exportada para `scratch/sprint3-review/` para testar o conteúdo
+  da Sprint 3 sem incorporar modificações locais de embeddings da Sprint 4.
+- Pytest sobre essa cópia: **43 passed, 13 skipped**, 8,22 s. Os 13 skips exigem
+  PostgreSQL. A tentativa do runner de integração terminou antes dos testes por
+  timeout de conexão; o Docker Desktop falhou na inicialização de seu socket local.
+  A remoção desse socket foi bloqueada pela política de execução. A integração
+  **não foi revalidada nesta revisão**; os 56 testes aprovados em 16/09 são históricos.
+- Os testes de integração não foram afetados pelo novo diff, composto somente
+  de documentação e regras de exclusão. Essa evidência não homologa novamente
+  o banco operacional nem a carga integral.
+- Conferência de escopo: FR-010 e FR-011 atendidos; seleção pronta para FR-012.
+  Publicação autorizada na branch existente `codex/prontidao-carga`, sem merge
+  em main. Alterações locais de código e artefatos da Sprint 4 ficam fora do commit.
+
+## Evidência histórica da implementação
+
+> **Atualização de 2026-09-16:** este relatório preserva a validação histórica
+> do piloto de 45 documentos. A carga posterior do lote elegível foi concluída
+> para 2025 e 2026, com 51.009 documentos e zero inconsistências; evidências em
+> `specs/005-carga-documental-2025/validation.md` e
+> `specs/006-carga-documental-2026/validation.md`. As 225 ocorrências de 2026
+> permanecem fora do lote, sem homologação do acervo bruto integral.
+
 ## Parecer
 
 Implementação e piloto validados após as correções abaixo. A carga integral não

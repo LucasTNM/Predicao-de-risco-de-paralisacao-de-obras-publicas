@@ -1,5 +1,11 @@
 # Preparação da carga — 2026-09-15
 
+> **Atualização de 2026-09-16:** as contagens e o estado sem carga abaixo
+> descrevem esta etapa histórica. A carga elegível de 2025 e 2026 foi executada
+> depois; os resultados atuais estão em `specs/005-carga-documental-2025/validation.md`
+> e `specs/006-carga-documental-2026/validation.md`. As exclusões continuam
+> rastreadas e não foram promovidas automaticamente.
+
 ## Estado final
 
 **Preflight integral concluído em 2026-09-15. STATUS: `PREFLIGHT`. PRONTIDÃO: `APTO_COM_EXCLUSOES`.**
@@ -134,4 +140,3 @@ Executado em 2026-09-15. Resultado: **✅ Converged**.
 | Princípios da Constituição (I–IV) | 4 | 0 |
 
 **Todos os requisitos satisfeitos. Nenhuma tarefa de convergência necessária.**
-

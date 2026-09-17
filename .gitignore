@@ -78,6 +78,8 @@ credentials.json
 
 # ─── AMBIENTE VIRTUAL E DEPENDÊNCIAS PYTHON ─────────────────────────────────
 .venv/
+.venv-sprint4/
+.venv-*/
 venv/
 env/
 ENV/
@@ -95,6 +97,9 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+pip-wheel-metadata/
+.tox/
+.nox/
 
 # ─── CONFIGURAÇÕES DE IDES E SISTEMA OPERACIONAL ─────────────────────────────
 .vscode/
@@ -107,6 +112,12 @@ desktop.ini
 
 # ─── PLANOS DE IMPLEMENTAÇÃO INTERNOS ────────────────────────────────────────
 planos/
+
+# Backups e estado local do PostgreSQL (DDL em sql/ permanece versionado)
+*.dump
+*.backup
+pgdata/
+postgres-data/
 
 # Spec Kit: versionar .specify/, .agents/skills/ e specs/.
 # Estado local e overrides ficam nas regras oficiais de .specify/.gitignore.

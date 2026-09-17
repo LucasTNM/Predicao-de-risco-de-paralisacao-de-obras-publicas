@@ -77,6 +77,15 @@ significativa. Usar cinco workers e no máximo dez documentos pendentes por lote
 mantendo ordem determinística e resultado por documento. Relatar progresso a cada
 mil documentos verificados; nenhum worker modifica fontes ou acessa o banco.
 
+## Plano de fechamento em 2026-09-17
+
+Revisar `.gitignore` e arquivos rastreados; produzir PDF local em `docs/` a partir
+dos registros das sprints, DDL e evidências 005/006. Selecionar somente o fechamento
+da Sprint 3 no índice. Exportar esse índice para diretório temporário ignorado,
+executar a regressão com PostgreSQL descartável e conferir o diff antes do commit.
+Publicar a branch existente, sem alterar main nem incorporar o piloto da Sprint 4.
+
+
 ## Complexity Tracking
 
 Nenhuma violação dos artigos; não introduzir novos serviços, filas ou tabelas.

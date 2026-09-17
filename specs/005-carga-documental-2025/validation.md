@@ -51,4 +51,5 @@ A verificação executada via `src/main.py --modo validar-banco` com conexão so
 
 ## 5. Auditoria de 2026
 
-* Preflight físico isolado dos 35.602 arquivos de 2026 em execução paralela dedicada (tarefa em background sem impacto de concorrência com o banco).
+* Em 2026-09-15, o preflight físico isolado dos 35.602 arquivos de 2026 iniciou em paralelo; essa execução ficou parcial em 34.000/35.602.
+* Em 2026-09-16, o preflight integral foi repetido e concluído, seguido da carga dos 35.601 documentos elegíveis de 2026. Ver `specs/006-carga-documental-2026/validation.md`.
