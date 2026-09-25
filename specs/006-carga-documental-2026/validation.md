@@ -38,4 +38,10 @@ O inventário esperado e os registros de 2026 coincidem exatamente: 35.601 esper
 
 ## Convergência Speckit
 
+Atualização de 2026-09-20: as 27 quarentenas foram reauditadas fisicamente na
+[feature 008](../008-retomada-embeddings/validation.md). Uma ausência de coleta é
+duplicata comprovada de PDFs aceitos; 22 continuam sem coleta correspondente,
+três têm vínculo ambíguo e uma exige rehigienização. Nenhum item foi reinserido.
+O corpus e as contagens documentais permanecem preservados.
+
 FR-001..FR-006 e SC-001..SC-004 conferidos contra preflight, relatórios e banco. Nenhuma tarefa de implementação pendente; o estado `PARCIAL` registra as quarentenas preservadas, já destinadas individualmente.

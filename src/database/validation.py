@@ -7,6 +7,7 @@ def content_integrity(conn):
     """Recalcula a chave sem carregar o corpus inteiro na memoria."""
     errors = 0
     with conn.transaction(), conn.cursor(name='sprint3_content_audit') as cursor:
+        cursor.itersize = 2048
         cursor.execute('SELECT chave_conteudo,conteudo_chunk,token_ids,chunk_config FROM tcc.dim_embedding')
         for key, text, ids, config in cursor:
             errors += key != digest([text, ids, config])
@@ -21,6 +22,7 @@ def coverage_integrity(conn):
     errors = 0
     previous = None
     with conn.transaction(), conn.cursor(name='sprint3_coverage_audit') as cursor:
+        cursor.itersize = 2048
         cursor.execute('''
             SELECT DISTINCT p.id_documento,p.posicao_chunk,p.token_inicio,p.token_fim,e.token_ids
             FROM tcc.ponte_documento_embedding p JOIN tcc.dim_embedding e USING (id_embedding)
@@ -40,7 +42,7 @@ def coverage_integrity(conn):
     return errors
 
 
-def validate_data(conn):
+def validate_data(conn, *, allow_embeddings=True):
     validate_schema(conn)
     counts = {t: conn.execute(f'SELECT count(*) FROM tcc.{t}').fetchone()[0] for t in sorted(TABLES)}
     checks = {
@@ -62,7 +64,12 @@ def validate_data(conn):
             SELECT id_documento,chunk_config,posicao_chunk FROM tcc.ponte_documento_embedding
             GROUP BY id_documento,chunk_config,posicao_chunk
             HAVING count(DISTINCT (id_embedding,token_inicio,token_fim,char_inicio,char_fim))<>1) x''',
-        'vetor_preenchido_antes_card8': 'SELECT count(*) FROM tcc.dim_embedding WHERE embedding IS NOT NULL',
+        'vetor_preenchido_antes_card8': ('SELECT 0' if allow_embeddings else
+            'SELECT count(*) FROM tcc.dim_embedding WHERE embedding IS NOT NULL'),
+        'vetor_inconsistente_card8': '''SELECT count(*) FROM tcc.dim_embedding WHERE embedding IS NOT NULL
+            AND (modelo_embedding IS NULL OR modelo_embedding = '' OR
+                 revisao_embedding IS NULL OR revisao_embedding !~ '^[0-9a-f]{40}$' OR
+                 vector_norm(embedding) < 0.99 OR vector_norm(embedding) > 1.01)''',
         'rotulo_preenchido_sem_homologacao': 'SELECT count(*) FROM tcc.fato_risco WHERE label_risco IS NOT NULL',
     }
     errors = {key: conn.execute(query).fetchone()[0] for key, query in checks.items()}
