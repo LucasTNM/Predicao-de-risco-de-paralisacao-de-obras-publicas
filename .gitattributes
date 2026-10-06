@@ -1,3 +1,6 @@
 # Scripts montados no container Linux precisam de finais de linha LF.
 *.sh text eol=lf
 *.sql text eol=lf
+# O hash da politica de rotulagem deve ser estavel entre checkouts Windows/Linux.
+src/labeling/policy.py text eol=lf
+src/labeling/policy_v2.py text eol=lf

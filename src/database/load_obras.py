@@ -19,6 +19,8 @@ def load_works(conn, audit) -> dict:
                'municipio', 'setor', 'repassador', 'obra_pac', 'pacto', 'fonte')
     names = sql.SQL(',').join(map(sql.Identifier, columns))
     with conn.transaction():
+        # Mesmo ordenamento da rotulagem: evita intercalar fonte nova e alvo antigo.
+        conn.execute('LOCK TABLE tcc.dim_obra,tcc.fato_risco IN SHARE ROW EXCLUSIVE MODE')
         conn.execute('CREATE TEMP TABLE incoming_works ON COMMIT DROP AS SELECT * FROM tcc.dim_obra WITH NO DATA')
         with conn.cursor().copy(sql.SQL('COPY incoming_works ({}) FROM STDIN').format(names)) as copy:
             for r in audit.works.values():
@@ -27,6 +29,15 @@ def load_works(conn, audit) -> dict:
                                 r['num. instrumento'], r['empreendimento'], r['situacao'],
                                 r['situacao origem'], r['local'], uf, city, r['setor'],
                                 r['repassador'], r['obra pac'], r['pacto'], jsonb(r)))
+        # Situacao/fonte tambem integram a decisao, mesmo sem mudanca nas medidas.
+        conn.execute('''
+            UPDATE tcc.fato_risco f SET label_risco=NULL,origem_rotulo=NULL,
+                status_rotulagem='PENDENTE',updated_at=now()
+            FROM tcc.dim_obra o JOIN incoming_works i
+                USING (base_de_dados,id_tcu,data_base)
+            WHERE f.id_obra=o.id_obra AND o.fonte IS DISTINCT FROM i.fonte
+                AND (f.label_risco IS NOT NULL OR f.origem_rotulo IS NOT NULL)
+        ''')
         updates = sql.SQL(',').join(sql.SQL('{}=EXCLUDED.{}').format(sql.Identifier(c), sql.Identifier(c)) for c in columns[4:])
         conn.execute(sql.SQL('''
             INSERT INTO tcc.dim_obra ({names}) SELECT {names} FROM incoming_works

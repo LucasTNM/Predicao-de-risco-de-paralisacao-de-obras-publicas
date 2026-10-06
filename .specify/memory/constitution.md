@@ -1,3 +1,7 @@
+<!-- Sync Impact Report: 1.0.0 -> 2.0.0; princípio I redefinido por autorização
+explícita do pesquisador: classe 0 pela situação sem contradições. Nenhuma seção
+removida; demais princípios preservados. Sem placeholders/TODOs. Remover este
+comentário de revisão antes de commit. -->
 # Constituição do TCC — Predição de Risco em Obras Públicas
 
 ## Core Principles
@@ -10,14 +14,20 @@ até 2025. Estados administrativos de 2026 e informações posteriores NÃO DEVE
 substituir o alvo histórico ou contaminar atributos de treino. Snapshots de 2026
 podem ser armazenados com proveniência; armazenamento não autoriza seu uso como
 evidência histórica. Classes: 0 regular; 1 deficiência técnica; 2 deficiência
-orçamentário-financeira; 3 abandono/falhas da contratada. Ausência de evidência
-DEVE permanecer NULL/pendente, nunca virar classe 0 por padrão.
+orçamentário-financeira; 3 abandono/falhas da contratada. Para observações de 2025, a situação "Em execução" ou "Concluída" DEVE gerar
+classe 0 quando a causa está ausente/não informada e não há contradição na situação
+original. Essa regra de referência tabular foi autorizada explicitamente pelo
+pesquisador em 2026-09-28; não equivale a uma auditoria documental de ausência de risco.
+Causa presente, origem contraditória ou situação desconhecida DEVEM ir à revisão.
+Para "Paralisada", a causa DEVE orientar classes 1–3; se ausente, DEVE ser buscada
+em evidências da própria obra, preservando NULL até que a causa seja sustentada.
+Fichas sintéticas e similaridade com outra obra NÃO DEVEM preencher a causa ausente.
 
 A amostragem futura DEVE conter contraste entre obras regulares e paralisadas,
 registrar critérios e impedir que a mesma obra vaze entre treino e avaliação.
 Fichas sintéticas derivadas de planilhas DEVEM ser distinguidas de documentos
 originais para prevenir vazamento do alvo. Estes critérios preservam a validade
-científica, sem inventar regra de rotulagem automática ainda não homologada.
+científica, sem extrapolar as regras de rotulagem explicitamente autorizadas pelo pesquisador.
 
 ### II. Integridade semântica dos documentos (ADR-004, ADR-007, ADR-008)
 
@@ -99,4 +109,4 @@ Usar SemVer: major para mudar/remover princípios, minor para ampliar regras e p
 para esclarecimentos sem alteração semântica. Mudanças metodológicas não podem ser
 introduzidas silenciosamente por correção técnica. Preservar trabalho local existente.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-10 | **Last Amended**: 2026-09-10
+**Version**: 2.0.0 | **Ratified**: 2026-09-10 | **Last Amended**: 2026-09-28

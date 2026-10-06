@@ -42,7 +42,7 @@ def coverage_integrity(conn):
     return errors
 
 
-def validate_data(conn, *, allow_embeddings=True):
+def validate_data(conn, *, allow_embeddings=True, allow_labels=True):
     validate_schema(conn)
     counts = {t: conn.execute(f'SELECT count(*) FROM tcc.{t}').fetchone()[0] for t in sorted(TABLES)}
     checks = {
@@ -70,9 +70,14 @@ def validate_data(conn, *, allow_embeddings=True):
             AND (modelo_embedding IS NULL OR modelo_embedding = '' OR
                  revisao_embedding IS NULL OR revisao_embedding !~ '^[0-9a-f]{40}$' OR
                  vector_norm(embedding) < 0.99 OR vector_norm(embedding) > 1.01)''',
-        'rotulo_preenchido_sem_homologacao': 'SELECT count(*) FROM tcc.fato_risco WHERE label_risco IS NOT NULL',
+        # Nome historico preservado; ROTULADO nao implica homologacao cientifica.
+        'rotulo_preenchido_sem_homologacao': ('SELECT 0' if allow_labels else
+            'SELECT count(*) FROM tcc.fato_risco WHERE label_risco IS NOT NULL'),
     }
     errors = {key: conn.execute(query).fetchone()[0] for key, query in checks.items()}
+    if allow_labels:
+        from src.database.labeling import audit_labels
+        errors['rotulo_preenchido_sem_homologacao'] = len(audit_labels(conn)['erros'])
     errors['conteudo_hash_inconsistente'] = content_integrity(conn)
     errors['cobertura_tokens_inconsistente'] = coverage_integrity(conn)
     return {'contagens': counts, 'inconsistencias': errors, 'valido': not any(errors.values())}

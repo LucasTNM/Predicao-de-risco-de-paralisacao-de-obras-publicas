@@ -1,0 +1,7 @@
+# Research
+**Decisão**: zero pela situação sem contradição, conforme resposta explícita do pesquisador em 2026-09-28. Substitui exigência v1 de prova documental para todos os zeros. Corte histórico não foi alterado.
+**Racional**: situação é a primeira variável do fluxo solicitado. Alternativa anterior permanece auditável para os dados já gravados; módulo v1 não pode ser editado porque seu hash integra proveniências.
+**Decisão**: regra v2 em arquivo separado; auditoria despacha pela versão e aplica mesmo fingerprint histórico. Rótulos compatíveis v1 são reutilizados sem migração cosmética. Decisões divergentes continuam bloqueadas.
+**Evidência local**: 2025 tem 11.469 paralisadas; 6.738 com causa SQL NULL. Dessas, 6.255 com fichas sintéticas, 22 com documentos não confirmados, 461 sem vínculos; zero documento marcado original. Amostra de não confirmados revelou documentos potencialmente alheios ao contrato. Não é possível transformar todos os nulos em classes causais com o material atual.
+**Decisão**: preparar pacote verificável por obra, com material próprio e encaminhamento para confirmar fonte ou coletar laudo/relatório/termo de paralisação original. Alternativas rejeitadas: classe mais frequente, percentuais físico/financeiros como causa, similaridade de outra obra ou inferência de ficha sintética.
+Todas as decisões resolvidas com código/dados e autorização do usuário; nenhuma tecnologia nova ou pesquisa externa necessária.

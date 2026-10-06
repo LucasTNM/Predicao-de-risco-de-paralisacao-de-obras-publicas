@@ -86,20 +86,11 @@ def _processar_obra_worker(
             sess_local = requests.Session()
             sess_local.headers.update(DEFAULT_HEADERS)
             try:
-                m = re.search(r"(\d+)/(\d{4})", str(num_inst))
-                if m:
-                    seq, ano = str(int(m.group(1))), m.group(2)
-                    docs_baixados = coletar_obra_pncp(
-                        sess=sess_local,
-                        cnpj=CNPJ_DNIT,
-                        base_nome=base_nome,
-                        ano=ano,
-                        seq=seq,
-                        row=row,
-                        pasta_destino=pasta_destino,
-                        cache_log=cache_log,
-                        cache_hashes=cache_hashes,
-                    )
+                docs_baixados = coletar_obra_pncp(
+                    sess=sess_local, cnpj=CNPJ_DNIT, base_nome=base_nome,
+                    ano="", seq="", row=row, pasta_destino=pasta_destino,
+                    cache_log=cache_log, cache_hashes=cache_hashes,
+                )
             finally:
                 sess_local.close()
 
@@ -108,20 +99,11 @@ def _processar_obra_worker(
             sess_local = requests.Session()
             sess_local.headers.update(DEFAULT_HEADERS)
             try:
-                m = re.search(r"(\d+)\.(\d+)\.\d+/(\d{4})", id_obra)
-                if m:
-                    seq, ano = str(int(m.group(2))), m.group(3)
-                    docs_baixados = coletar_obra_pncp(
-                        sess=sess_local,
-                        cnpj=CNPJ_CODEVASF,
-                        base_nome=base_nome,
-                        ano=ano,
-                        seq=seq,
-                        row=row,
-                        pasta_destino=pasta_destino,
-                        cache_log=cache_log,
-                        cache_hashes=cache_hashes,
-                    )
+                docs_baixados = coletar_obra_pncp(
+                    sess=sess_local, cnpj=CNPJ_CODEVASF, base_nome=base_nome,
+                    ano="", seq="", row=row, pasta_destino=pasta_destino,
+                    cache_log=cache_log, cache_hashes=cache_hashes,
+                )
                 if not docs_baixados:
                     docs_baixados = coletar_relatorio_codevasf(
                         row=row,

@@ -22,6 +22,8 @@ from typing import Any
 import pandas as pd
 import requests
 
+from src.extractors.pncp_identity import verified_record
+
 from src.config import logger
 from src.utils import (
     arquivo_ja_existe_valido,
@@ -72,6 +74,13 @@ def coletar_obra_pncp(
     emp = str(row.get("empreendimento", "")).strip()
     num_inst = str(row.get("num. instrumento", "")).strip()
 
+    # Never turn a local instrument number into an official PNCP sequence.
+    identity = verified_record(sess, cnpj, row)
+    if identity is None:
+        logger.info(f"  [{base_nome} {id_obra}] PNCP: identidade não confirmada; coleta pendente.")
+        return []
+    ano, seq = identity['year'], identity['sequence']
+
     # Cache de hashes para deduplicação SHA-256
     if cache_hashes is None:
         cache_hashes = {}
@@ -80,10 +89,7 @@ def coletar_obra_pncp(
     temp_dir = Path(tempfile.gettempdir()) / "tcc_pncp_temp"
     temp_dir.mkdir(parents=True, exist_ok=True)
 
-    urls_tentativas = [
-        f"https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj}/compras/{ano}/{seq}/arquivos",
-        f"https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj}/contratos/{ano}/{seq}/arquivos",
-    ]
+    urls_tentativas = [identity['url'] + '/arquivos']
 
     arquivos_validados: list[Path] = []
 
@@ -128,7 +134,7 @@ def coletar_obra_pncp(
                     continue
 
                 sufixo = re.sub(r"[^A-Za-z0-9]", "_", tipo_nome)[:30]
-                nome_arquivo = f"{base_nome}_{ano}_{seq}_{idx}_{sufixo}.pdf"
+                nome_arquivo = f"{base_nome}_{identity['kind']}_{ano}_{seq}_{idx}_{sufixo}.pdf"
                 caminho_arquivo = pasta_destino / nome_arquivo
 
                 # ─── TRAVA DE IDEMPOTÊNCIA DE DOWNLOAD ──────────────────────
@@ -187,7 +193,8 @@ def coletar_obra_pncp(
                         id_obra=id_obra,
                         num_inst=num_inst,
                         emp=emp,
-                        obs_extra=f"Score PNCP: {score} | Tipo API: {tipo_nome}",
+                        obs_extra=(f"Score PNCP: {score} | Tipo API: {tipo_nome} | "
+                                   f"Controle PNCP verificado: {identity['control']} | Fonte: {url}"),
                         cache_log=cache_log,
                     )
                     val_data = avaliacao["validation"]

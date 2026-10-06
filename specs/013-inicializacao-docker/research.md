@@ -1,0 +1,4 @@
+# Pesquisa e decisões
+Decisão: docker desktop start --detach é a interface oficial, confirmada por --help local e [documentação](https://docs.docker.com/reference/cli/docker/desktop/start/). Espera desacoplada e sondagem posterior substituem lançamento ad hoc do executável.
+Pesquisa delegada: logs/pesquisa_docker_start.md. Logs confirmam falha anterior em sailor-ingest.sock; a causa raiz permanece hipótese. Detach não promete reparar esse erro interno. A eficácia nesta sessão depende do teste real com Desktop parado.
+Contexto local explícito evita alterar o padrão global. Reutilizar ambiente saudável e preservar o container; iniciar apenas PostgreSQL deste projeto. Conexão remota, URL explícita e erro de autenticação não devem acionar Docker. Diagnóstico final informa estágio, sem saída bruta potencialmente sensível.

@@ -19,6 +19,8 @@ def main():
     source = urlsplit(settings['DATABASE_URL'])
     if source.hostname not in ('127.0.0.1', 'localhost'):
         raise RuntimeError('Este runner so provisiona testes no PostgreSQL local.')
+    from src.docker_runtime import ensure_postgres
+    ensure_postgres(ROOT)
     database = 'tcc_test_' + uuid.uuid4().hex
     with psycopg.connect(host=source.hostname, port=source.port or 5432, user='postgres',
                          password=settings['POSTGRES_PASSWORD'], dbname='postgres', autocommit=True,

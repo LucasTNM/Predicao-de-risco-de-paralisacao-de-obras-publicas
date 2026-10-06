@@ -5,6 +5,7 @@
 
 # ─── DADOS BRUTOS, PLANILHAS E DATASETS ──────────────────────────────────────
 dados_brutos/
+dados_processados/
 data/
 datasets/
 *.xlsx
