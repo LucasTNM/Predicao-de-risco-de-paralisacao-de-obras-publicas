@@ -1,0 +1,638 @@
+{
+  "data_execucao": "2026-10-05T21:46:30.442871+00:00",
+  "dataset_info": {
+    "total_amostras": 14522,
+    "obras_unicas": 14522,
+    "total_atributos": 777
+  },
+  "stage1_binary_stats": {
+    "tp_risco": 1146,
+    "total_risco": 1203,
+    "recall_risco": 0.9526184538653366,
+    "recall_regular": 0.8097454763871161,
+    "balanced_acc": 0.8811819651262264
+  },
+  "resultados": {
+    "LightGBM_Conjunto_F015": {
+      "modelo": "LightGBM_Conjunto_F015",
+      "arquitetura": "conjunto",
+      "modo": "4-classes",
+      "class2_boost": 1.0,
+      "threshold": 0.5,
+      "tempo_total_segundos": 54.16,
+      "macro_f1_medio": 0.5493,
+      "macro_f1_desvio": 0.012,
+      "balanced_accuracy_media": 0.6684,
+      "oof_metricas": {
+        "total_amostras": 14522,
+        "acuracia_geral": 0.8386,
+        "macro_f1": 0.5497,
+        "balanced_accuracy": 0.6686,
+        "macro_precision": 0.5428,
+        "macro_recall": 0.6686,
+        "weighted_f1": 0.8739,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 13319,
+            "precision": 0.9887,
+            "recall": 0.8397,
+            "f1_score": 0.9081,
+            "tp": 11184,
+            "fp": 128,
+            "fn": 2135,
+            "tn": 1075
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 782,
+            "precision": 0.2366,
+            "recall": 0.8491,
+            "f1_score": 0.37,
+            "tp": 664,
+            "fp": 2143,
+            "fn": 118,
+            "tn": 11597
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 83,
+            "precision": 0.1111,
+            "recall": 0.012,
+            "f1_score": 0.0217,
+            "tp": 1,
+            "fp": 8,
+            "fn": 82,
+            "tn": 14431
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 338,
+            "precision": 0.835,
+            "recall": 0.9734,
+            "f1_score": 0.8989,
+            "tp": 329,
+            "fp": 65,
+            "fn": 9,
+            "tn": 14119
+          }
+        },
+        "matriz_confusao": [
+          [
+            11184,
+            2134,
+            1,
+            0
+          ],
+          [
+            115,
+            664,
+            3,
+            0
+          ],
+          [
+            8,
+            9,
+            1,
+            65
+          ],
+          [
+            5,
+            0,
+            4,
+            329
+          ]
+        ]
+      },
+      "dobras": [
+        {
+          "fold": 1,
+          "macro_f1": 0.5417,
+          "balanced_accuracy": 0.6568,
+          "tempo_s": 11.0
+        },
+        {
+          "fold": 2,
+          "macro_f1": 0.5716,
+          "balanced_accuracy": 0.6752,
+          "tempo_s": 10.67
+        },
+        {
+          "fold": 3,
+          "macro_f1": 0.5379,
+          "balanced_accuracy": 0.6551,
+          "tempo_s": 10.87
+        },
+        {
+          "fold": 4,
+          "macro_f1": 0.5516,
+          "balanced_accuracy": 0.6785,
+          "tempo_s": 10.85
+        },
+        {
+          "fold": 5,
+          "macro_f1": 0.5435,
+          "balanced_accuracy": 0.6766,
+          "tempo_s": 10.77
+        }
+      ]
+    },
+    "Hierarquico_Cascata_Suave": {
+      "modelo": "Hierarquico_Cascata_Suave",
+      "arquitetura": "hierarquico",
+      "modo": "soft",
+      "class2_boost": 1.0,
+      "threshold": 0.5,
+      "tempo_total_segundos": 24.24,
+      "macro_f1_medio": 0.5627,
+      "macro_f1_desvio": 0.0146,
+      "balanced_accuracy_media": 0.6922,
+      "oof_metricas": {
+        "total_amostras": 14522,
+        "acuracia_geral": 0.8162,
+        "macro_f1": 0.5632,
+        "balanced_accuracy": 0.6922,
+        "macro_precision": 0.5933,
+        "macro_recall": 0.6922,
+        "weighted_f1": 0.8598,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 13319,
+            "precision": 0.9945,
+            "recall": 0.81,
+            "f1_score": 0.8928,
+            "tp": 10789,
+            "fp": 60,
+            "fn": 2530,
+            "tn": 1143
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 782,
+            "precision": 0.2246,
+            "recall": 0.9399,
+            "f1_score": 0.3626,
+            "tp": 735,
+            "fp": 2537,
+            "fn": 47,
+            "tn": 11203
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 83,
+            "precision": 0.3125,
+            "recall": 0.0602,
+            "f1_score": 0.101,
+            "tp": 5,
+            "fp": 11,
+            "fn": 78,
+            "tn": 14428
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 338,
+            "precision": 0.8416,
+            "recall": 0.9586,
+            "f1_score": 0.8963,
+            "tp": 324,
+            "fp": 61,
+            "fn": 14,
+            "tn": 14123
+          }
+        },
+        "matriz_confusao": [
+          [
+            10789,
+            2527,
+            3,
+            0
+          ],
+          [
+            45,
+            735,
+            2,
+            0
+          ],
+          [
+            7,
+            10,
+            5,
+            61
+          ],
+          [
+            8,
+            0,
+            6,
+            324
+          ]
+        ]
+      },
+      "dobras": [
+        {
+          "fold": 1,
+          "macro_f1": 0.5575,
+          "balanced_accuracy": 0.6838,
+          "tempo_s": 4.94
+        },
+        {
+          "fold": 2,
+          "macro_f1": 0.5657,
+          "balanced_accuracy": 0.685,
+          "tempo_s": 4.75
+        },
+        {
+          "fold": 3,
+          "macro_f1": 0.5572,
+          "balanced_accuracy": 0.6857,
+          "tempo_s": 4.84
+        },
+        {
+          "fold": 4,
+          "macro_f1": 0.5445,
+          "balanced_accuracy": 0.6889,
+          "tempo_s": 4.87
+        },
+        {
+          "fold": 5,
+          "macro_f1": 0.5885,
+          "balanced_accuracy": 0.7176,
+          "tempo_s": 4.84
+        }
+      ]
+    },
+    "Hierarquico_Cascata_Dura": {
+      "modelo": "Hierarquico_Cascata_Dura",
+      "arquitetura": "hierarquico",
+      "modo": "hard",
+      "class2_boost": 1.0,
+      "threshold": 0.5,
+      "tempo_total_segundos": 23.44,
+      "macro_f1_medio": 0.5625,
+      "macro_f1_desvio": 0.015,
+      "balanced_accuracy_media": 0.6928,
+      "oof_metricas": {
+        "total_amostras": 14522,
+        "acuracia_geral": 0.8161,
+        "macro_f1": 0.563,
+        "balanced_accuracy": 0.6928,
+        "macro_precision": 0.5929,
+        "macro_recall": 0.6928,
+        "weighted_f1": 0.8598,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 13319,
+            "precision": 0.9947,
+            "recall": 0.8097,
+            "f1_score": 0.8928,
+            "tp": 10785,
+            "fp": 57,
+            "fn": 2534,
+            "tn": 1146
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 782,
+            "precision": 0.2248,
+            "recall": 0.9425,
+            "f1_score": 0.3631,
+            "tp": 737,
+            "fp": 2541,
+            "fn": 45,
+            "tn": 11199
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 83,
+            "precision": 0.3125,
+            "recall": 0.0602,
+            "f1_score": 0.101,
+            "tp": 5,
+            "fp": 11,
+            "fn": 78,
+            "tn": 14428
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 338,
+            "precision": 0.8394,
+            "recall": 0.9586,
+            "f1_score": 0.895,
+            "tp": 324,
+            "fp": 62,
+            "fn": 14,
+            "tn": 14122
+          }
+        },
+        "matriz_confusao": [
+          [
+            10785,
+            2531,
+            3,
+            0
+          ],
+          [
+            43,
+            737,
+            2,
+            0
+          ],
+          [
+            6,
+            10,
+            5,
+            62
+          ],
+          [
+            8,
+            0,
+            6,
+            324
+          ]
+        ]
+      },
+      "dobras": [
+        {
+          "fold": 1,
+          "macro_f1": 0.5579,
+          "balanced_accuracy": 0.6854,
+          "tempo_s": 4.74
+        },
+        {
+          "fold": 2,
+          "macro_f1": 0.5662,
+          "balanced_accuracy": 0.6866,
+          "tempo_s": 4.63
+        },
+        {
+          "fold": 3,
+          "macro_f1": 0.5569,
+          "balanced_accuracy": 0.6855,
+          "tempo_s": 4.63
+        },
+        {
+          "fold": 4,
+          "macro_f1": 0.5429,
+          "balanced_accuracy": 0.6888,
+          "tempo_s": 4.64
+        },
+        {
+          "fold": 5,
+          "macro_f1": 0.5885,
+          "balanced_accuracy": 0.7176,
+          "tempo_s": 4.81
+        }
+      ]
+    },
+    "Hierarquico_Sensivel_Classe2_x2.5": {
+      "modelo": "Hierarquico_Sensivel_Classe2_x2.5",
+      "arquitetura": "hierarquico",
+      "modo": "soft",
+      "class2_boost": 2.5,
+      "threshold": 0.5,
+      "tempo_total_segundos": 24.34,
+      "macro_f1_medio": 0.5913,
+      "macro_f1_desvio": 0.0222,
+      "balanced_accuracy_media": 0.7141,
+      "oof_metricas": {
+        "total_amostras": 14522,
+        "acuracia_geral": 0.8161,
+        "macro_f1": 0.591,
+        "balanced_accuracy": 0.714,
+        "macro_precision": 0.59,
+        "macro_recall": 0.714,
+        "weighted_f1": 0.8605,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 13319,
+            "precision": 0.9947,
+            "recall": 0.81,
+            "f1_score": 0.8929,
+            "tp": 10788,
+            "fp": 58,
+            "fn": 2531,
+            "tn": 1145
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 782,
+            "precision": 0.2243,
+            "recall": 0.9335,
+            "f1_score": 0.3617,
+            "tp": 730,
+            "fp": 2524,
+            "fn": 52,
+            "tn": 11216
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 83,
+            "precision": 0.2857,
+            "recall": 0.1687,
+            "f1_score": 0.2121,
+            "tp": 14,
+            "fp": 35,
+            "fn": 69,
+            "tn": 14404
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 338,
+            "precision": 0.8552,
+            "recall": 0.9438,
+            "f1_score": 0.8973,
+            "tp": 319,
+            "fp": 54,
+            "fn": 19,
+            "tn": 14130
+          }
+        },
+        "matriz_confusao": [
+          [
+            10788,
+            2514,
+            17,
+            0
+          ],
+          [
+            45,
+            730,
+            7,
+            0
+          ],
+          [
+            5,
+            10,
+            14,
+            54
+          ],
+          [
+            8,
+            0,
+            11,
+            319
+          ]
+        ]
+      },
+      "dobras": [
+        {
+          "fold": 1,
+          "macro_f1": 0.5702,
+          "balanced_accuracy": 0.6912,
+          "tempo_s": 4.89
+        },
+        {
+          "fold": 2,
+          "macro_f1": 0.6207,
+          "balanced_accuracy": 0.7254,
+          "tempo_s": 4.76
+        },
+        {
+          "fold": 3,
+          "macro_f1": 0.5682,
+          "balanced_accuracy": 0.6955,
+          "tempo_s": 4.92
+        },
+        {
+          "fold": 4,
+          "macro_f1": 0.5827,
+          "balanced_accuracy": 0.7149,
+          "tempo_s": 4.89
+        },
+        {
+          "fold": 5,
+          "macro_f1": 0.6149,
+          "balanced_accuracy": 0.7435,
+          "tempo_s": 4.88
+        }
+      ]
+    },
+    "Hierarquico_Sensivel_Classe2_x5.0": {
+      "modelo": "Hierarquico_Sensivel_Classe2_x5.0",
+      "arquitetura": "hierarquico",
+      "modo": "soft",
+      "class2_boost": 5.0,
+      "threshold": 0.5,
+      "tempo_total_segundos": 23.62,
+      "macro_f1_medio": 0.5931,
+      "macro_f1_desvio": 0.0162,
+      "balanced_accuracy_media": 0.7257,
+      "oof_metricas": {
+        "total_amostras": 14522,
+        "acuracia_geral": 0.8151,
+        "macro_f1": 0.5925,
+        "balanced_accuracy": 0.7253,
+        "macro_precision": 0.5734,
+        "macro_recall": 0.7253,
+        "weighted_f1": 0.8602,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 13319,
+            "precision": 0.9947,
+            "recall": 0.8098,
+            "f1_score": 0.8928,
+            "tp": 10786,
+            "fp": 57,
+            "fn": 2533,
+            "tn": 1146
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 782,
+            "precision": 0.225,
+            "recall": 0.9271,
+            "f1_score": 0.3621,
+            "tp": 725,
+            "fp": 2497,
+            "fn": 57,
+            "tn": 11243
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 83,
+            "precision": 0.2075,
+            "recall": 0.2651,
+            "f1_score": 0.2328,
+            "tp": 22,
+            "fp": 84,
+            "fn": 61,
+            "tn": 14355
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 338,
+            "precision": 0.8661,
+            "recall": 0.8994,
+            "f1_score": 0.8824,
+            "tp": 304,
+            "fp": 47,
+            "fn": 34,
+            "tn": 14137
+          }
+        },
+        "matriz_confusao": [
+          [
+            10786,
+            2488,
+            45,
+            0
+          ],
+          [
+            44,
+            725,
+            13,
+            0
+          ],
+          [
+            5,
+            9,
+            22,
+            47
+          ],
+          [
+            8,
+            0,
+            26,
+            304
+          ]
+        ]
+      },
+      "dobras": [
+        {
+          "fold": 1,
+          "macro_f1": 0.5693,
+          "balanced_accuracy": 0.6986,
+          "tempo_s": 4.77
+        },
+        {
+          "fold": 2,
+          "macro_f1": 0.5963,
+          "balanced_accuracy": 0.7126,
+          "tempo_s": 4.61
+        },
+        {
+          "fold": 3,
+          "macro_f1": 0.5803,
+          "balanced_accuracy": 0.7158,
+          "tempo_s": 4.67
+        },
+        {
+          "fold": 4,
+          "macro_f1": 0.6125,
+          "balanced_accuracy": 0.7548,
+          "tempo_s": 4.63
+        },
+        {
+          "fold": 5,
+          "macro_f1": 0.6072,
+          "balanced_accuracy": 0.7465,
+          "tempo_s": 4.94
+        }
+      ]
+    }
+  },
+  "duracao_total_segundos": 150.97
+}

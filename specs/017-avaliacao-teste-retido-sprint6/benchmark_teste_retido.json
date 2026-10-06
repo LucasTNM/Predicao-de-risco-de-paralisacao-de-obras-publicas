@@ -1,0 +1,471 @@
+{
+  "data_execucao": "2026-10-06T01:56:57.288133+00:00",
+  "parametros": {
+    "seed": 42
+  },
+  "dev_info": {
+    "total_amostras": 14522,
+    "obras_unicas": 14522,
+    "distribuicao_classes": {
+      "0.0": 13319,
+      "1.0": 782,
+      "3.0": 338,
+      "2.0": 83
+    }
+  },
+  "test_info": {
+    "total_amostras": 3632,
+    "obras_unicas": 3632,
+    "distribuicao_classes": {
+      "0.0": 3330,
+      "1.0": 196,
+      "3.0": 85,
+      "2.0": 21
+    }
+  },
+  "stage1_binary_stats": {
+    "tp_risco": 292,
+    "total_risco": 302,
+    "recall_risco": 0.9668874172185431,
+    "recall_regular": 0.7987987987987988,
+    "balanced_acc": 0.8828431080086709
+  },
+  "resultados": {
+    "Dummy_Majoritario": {
+      "modelo": "Dummy_Majoritario",
+      "tipo": "dummy",
+      "tempo_treino_segundos": 0.0,
+      "tempo_inferencia_segundos": 0.0,
+      "metricas_teste": {
+        "total_amostras": 3632,
+        "acuracia_geral": 0.9169,
+        "macro_f1": 0.2392,
+        "balanced_accuracy": 0.25,
+        "macro_precision": 0.2292,
+        "macro_recall": 0.25,
+        "weighted_f1": 0.8771,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 3330,
+            "precision": 0.9169,
+            "recall": 1.0,
+            "f1_score": 0.9566,
+            "tp": 3330,
+            "fp": 302,
+            "fn": 0,
+            "tn": 0
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 196,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1_score": 0.0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 196,
+            "tn": 3436
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 21,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1_score": 0.0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 21,
+            "tn": 3611
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 85,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1_score": 0.0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 85,
+            "tn": 3547
+          }
+        },
+        "matriz_confusao": [
+          [
+            3330,
+            0,
+            0,
+            0
+          ],
+          [
+            196,
+            0,
+            0,
+            0
+          ],
+          [
+            21,
+            0,
+            0,
+            0
+          ],
+          [
+            85,
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "RandomForest_Tabular": {
+      "modelo": "RandomForest_Tabular",
+      "tipo": "rf_tab",
+      "tempo_treino_segundos": 0.3,
+      "tempo_inferencia_segundos": 0.01,
+      "metricas_teste": {
+        "total_amostras": 3632,
+        "acuracia_geral": 0.7299,
+        "macro_f1": 0.4241,
+        "balanced_accuracy": 0.6803,
+        "macro_precision": 0.388,
+        "macro_recall": 0.6803,
+        "weighted_f1": 0.7926,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 3330,
+            "precision": 0.9937,
+            "recall": 0.7159,
+            "f1_score": 0.8323,
+            "tp": 2384,
+            "fp": 15,
+            "fn": 946,
+            "tn": 287
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 196,
+            "precision": 0.2112,
+            "recall": 0.9796,
+            "f1_score": 0.3475,
+            "tp": 192,
+            "fp": 717,
+            "fn": 4,
+            "tn": 2719
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 21,
+            "precision": 0.0449,
+            "recall": 0.1905,
+            "f1_score": 0.0727,
+            "tp": 4,
+            "fp": 85,
+            "fn": 17,
+            "tn": 3526
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 85,
+            "precision": 0.3021,
+            "recall": 0.8353,
+            "f1_score": 0.4437,
+            "tp": 71,
+            "fp": 164,
+            "fn": 14,
+            "tn": 3383
+          }
+        },
+        "matriz_confusao": [
+          [
+            2384,
+            715,
+            76,
+            155
+          ],
+          [
+            4,
+            192,
+            0,
+            0
+          ],
+          [
+            6,
+            2,
+            4,
+            9
+          ],
+          [
+            5,
+            0,
+            9,
+            71
+          ]
+        ]
+      }
+    },
+    "LightGBM_Conjunto_F015": {
+      "modelo": "LightGBM_Conjunto_F015",
+      "tipo": "lgb_comb",
+      "tempo_treino_segundos": 13.25,
+      "tempo_inferencia_segundos": 0.02,
+      "metricas_teste": {
+        "total_amostras": 3632,
+        "acuracia_geral": 0.834,
+        "macro_f1": 0.5797,
+        "balanced_accuracy": 0.6921,
+        "macro_precision": 0.6138,
+        "macro_recall": 0.6921,
+        "weighted_f1": 0.8715,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 3330,
+            "precision": 0.9911,
+            "recall": 0.8324,
+            "f1_score": 0.9048,
+            "tp": 2772,
+            "fp": 25,
+            "fn": 558,
+            "tn": 277
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 196,
+            "precision": 0.2377,
+            "recall": 0.8878,
+            "f1_score": 0.375,
+            "tp": 174,
+            "fp": 558,
+            "fn": 22,
+            "tn": 2878
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 21,
+            "precision": 0.4,
+            "recall": 0.0952,
+            "f1_score": 0.1538,
+            "tp": 2,
+            "fp": 3,
+            "fn": 19,
+            "tn": 3608
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 85,
+            "precision": 0.8265,
+            "recall": 0.9529,
+            "f1_score": 0.8852,
+            "tp": 81,
+            "fp": 17,
+            "fn": 4,
+            "tn": 3530
+          }
+        },
+        "matriz_confusao": [
+          [
+            2772,
+            556,
+            1,
+            1
+          ],
+          [
+            22,
+            174,
+            0,
+            0
+          ],
+          [
+            1,
+            2,
+            2,
+            16
+          ],
+          [
+            2,
+            0,
+            2,
+            81
+          ]
+        ]
+      }
+    },
+    "Hierarquico_Cascata_Suave": {
+      "modelo": "Hierarquico_Cascata_Suave",
+      "tipo": "hierarquico",
+      "tempo_treino_segundos": 6.64,
+      "tempo_inferencia_segundos": 0.01,
+      "metricas_teste": {
+        "total_amostras": 3632,
+        "acuracia_geral": 0.8075,
+        "macro_f1": 0.5691,
+        "balanced_accuracy": 0.7005,
+        "macro_precision": 0.5937,
+        "macro_recall": 0.7005,
+        "weighted_f1": 0.8542,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 3330,
+            "precision": 0.9963,
+            "recall": 0.7997,
+            "f1_score": 0.8872,
+            "tp": 2663,
+            "fp": 10,
+            "fn": 667,
+            "tn": 292
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 196,
+            "precision": 0.2187,
+            "recall": 0.9541,
+            "f1_score": 0.3559,
+            "tp": 187,
+            "fp": 668,
+            "fn": 9,
+            "tn": 2768
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 21,
+            "precision": 0.3333,
+            "recall": 0.0952,
+            "f1_score": 0.1481,
+            "tp": 2,
+            "fp": 4,
+            "fn": 19,
+            "tn": 3607
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 85,
+            "precision": 0.8265,
+            "recall": 0.9529,
+            "f1_score": 0.8852,
+            "tp": 81,
+            "fp": 17,
+            "fn": 4,
+            "tn": 3530
+          }
+        },
+        "matriz_confusao": [
+          [
+            2663,
+            666,
+            0,
+            1
+          ],
+          [
+            8,
+            187,
+            1,
+            0
+          ],
+          [
+            1,
+            2,
+            2,
+            16
+          ],
+          [
+            1,
+            0,
+            3,
+            81
+          ]
+        ]
+      }
+    },
+    "Hierarquico_Sensivel_Classe2_x5.0": {
+      "modelo": "Hierarquico_Sensivel_Classe2_x5.0",
+      "tipo": "hierarquico",
+      "tempo_treino_segundos": 6.49,
+      "tempo_inferencia_segundos": 0.02,
+      "metricas_teste": {
+        "total_amostras": 3632,
+        "acuracia_geral": 0.8062,
+        "macro_f1": 0.6018,
+        "balanced_accuracy": 0.7462,
+        "macro_precision": 0.5817,
+        "macro_recall": 0.7462,
+        "weighted_f1": 0.8546,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 3330,
+            "precision": 0.9963,
+            "recall": 0.7997,
+            "f1_score": 0.8872,
+            "tp": 2663,
+            "fp": 10,
+            "fn": 667,
+            "tn": 292
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 196,
+            "precision": 0.2176,
+            "recall": 0.9337,
+            "f1_score": 0.3529,
+            "tp": 183,
+            "fp": 658,
+            "fn": 13,
+            "tn": 2778
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 21,
+            "precision": 0.2424,
+            "recall": 0.381,
+            "f1_score": 0.2963,
+            "tp": 8,
+            "fp": 25,
+            "fn": 13,
+            "tn": 3586
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 85,
+            "precision": 0.8706,
+            "recall": 0.8706,
+            "f1_score": 0.8706,
+            "tp": 74,
+            "fp": 11,
+            "fn": 11,
+            "tn": 3536
+          }
+        },
+        "matriz_confusao": [
+          [
+            2663,
+            656,
+            10,
+            1
+          ],
+          [
+            8,
+            183,
+            5,
+            0
+          ],
+          [
+            1,
+            2,
+            8,
+            10
+          ],
+          [
+            1,
+            0,
+            10,
+            74
+          ]
+        ]
+      }
+    }
+  },
+  "duracao_total_segundos": 27.26
+}

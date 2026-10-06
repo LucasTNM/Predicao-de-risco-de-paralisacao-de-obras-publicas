@@ -1,0 +1,948 @@
+{
+  "data_execucao": "2026-10-05T21:24:17.295120+00:00",
+  "parametros": {
+    "n_splits": 5,
+    "seed": 42
+  },
+  "dataset_info": {
+    "total_amostras": 14522,
+    "obras_unicas": 14522,
+    "total_tabulares": 9,
+    "total_atributos_hibridos": 777,
+    "distribuicao_classes": {
+      "0": 13319,
+      "1": 782,
+      "2": 83,
+      "3": 338
+    }
+  },
+  "resultados": {
+    "Dummy_Majoritario": {
+      "modelo": "Dummy_Majoritario",
+      "tipo": "dummy",
+      "balanceado": false,
+      "total_amostras": 14522,
+      "tempo_total_segundos": 0.0,
+      "tempo_medio_por_dobra": 0.0,
+      "macro_f1_medio": 0.2392,
+      "macro_f1_desvio": 0.0,
+      "balanced_accuracy_media": 0.25,
+      "oof_metricas": {
+        "total_amostras": 14522,
+        "acuracia_geral": 0.9172,
+        "macro_f1": 0.2392,
+        "balanced_accuracy": 0.25,
+        "macro_precision": 0.2293,
+        "macro_recall": 0.25,
+        "weighted_f1": 0.8775,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 13319,
+            "precision": 0.9172,
+            "recall": 1.0,
+            "f1_score": 0.9568,
+            "tp": 13319,
+            "fp": 1203,
+            "fn": 0,
+            "tn": 0
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 782,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1_score": 0.0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 782,
+            "tn": 13740
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 83,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1_score": 0.0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 83,
+            "tn": 14439
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 338,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1_score": 0.0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 338,
+            "tn": 14184
+          }
+        },
+        "matriz_confusao": [
+          [
+            13319,
+            0,
+            0,
+            0
+          ],
+          [
+            782,
+            0,
+            0,
+            0
+          ],
+          [
+            83,
+            0,
+            0,
+            0
+          ],
+          [
+            338,
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "dobras": [
+        {
+          "fold": 1,
+          "macro_f1": 0.2392,
+          "balanced_accuracy": 0.25,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.0,
+          "tempo_segundos": 0.0
+        },
+        {
+          "fold": 2,
+          "macro_f1": 0.2392,
+          "balanced_accuracy": 0.25,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.0,
+          "tempo_segundos": 0.0
+        },
+        {
+          "fold": 3,
+          "macro_f1": 0.2392,
+          "balanced_accuracy": 0.25,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.0,
+          "tempo_segundos": 0.0
+        },
+        {
+          "fold": 4,
+          "macro_f1": 0.2392,
+          "balanced_accuracy": 0.25,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.0,
+          "tempo_segundos": 0.0
+        },
+        {
+          "fold": 5,
+          "macro_f1": 0.2392,
+          "balanced_accuracy": 0.25,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.0,
+          "tempo_segundos": 0.0
+        }
+      ]
+    },
+    "RandomForest_Tabular": {
+      "modelo": "RandomForest_Tabular",
+      "tipo": "rf_tab",
+      "balanceado": false,
+      "total_amostras": 14522,
+      "tempo_total_segundos": 1.25,
+      "tempo_medio_por_dobra": 0.25,
+      "macro_f1_medio": 0.4619,
+      "macro_f1_desvio": 0.0173,
+      "balanced_accuracy_media": 0.6173,
+      "oof_metricas": {
+        "total_amostras": 14522,
+        "acuracia_geral": 0.8267,
+        "macro_f1": 0.4611,
+        "balanced_accuracy": 0.6175,
+        "macro_precision": 0.4101,
+        "macro_recall": 0.6175,
+        "weighted_f1": 0.8602,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 13319,
+            "precision": 0.9747,
+            "recall": 0.84,
+            "f1_score": 0.9024,
+            "tp": 11188,
+            "fp": 290,
+            "fn": 2131,
+            "tn": 913
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 782,
+            "precision": 0.2707,
+            "recall": 0.6893,
+            "f1_score": 0.3887,
+            "tp": 539,
+            "fp": 1452,
+            "fn": 243,
+            "tn": 12288
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 83,
+            "precision": 0.0435,
+            "recall": 0.1566,
+            "f1_score": 0.0681,
+            "tp": 13,
+            "fp": 286,
+            "fn": 70,
+            "tn": 14153
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 338,
+            "precision": 0.3515,
+            "recall": 0.784,
+            "f1_score": 0.4853,
+            "tp": 265,
+            "fp": 489,
+            "fn": 73,
+            "tn": 13695
+          }
+        },
+        "matriz_confusao": [
+          [
+            11188,
+            1444,
+            237,
+            450
+          ],
+          [
+            239,
+            539,
+            4,
+            0
+          ],
+          [
+            23,
+            8,
+            13,
+            39
+          ],
+          [
+            28,
+            0,
+            45,
+            265
+          ]
+        ]
+      },
+      "dobras": [
+        {
+          "fold": 1,
+          "macro_f1": 0.4661,
+          "balanced_accuracy": 0.6232,
+          "rec_classe_2": 0.2353,
+          "rec_classe_3": 0.7647,
+          "tempo_segundos": 0.271
+        },
+        {
+          "fold": 2,
+          "macro_f1": 0.4338,
+          "balanced_accuracy": 0.5805,
+          "rec_classe_2": 0.0588,
+          "rec_classe_3": 0.6866,
+          "tempo_segundos": 0.231
+        },
+        {
+          "fold": 3,
+          "macro_f1": 0.4867,
+          "balanced_accuracy": 0.6535,
+          "rec_classe_2": 0.2353,
+          "rec_classe_3": 0.8955,
+          "tempo_segundos": 0.254
+        },
+        {
+          "fold": 4,
+          "macro_f1": 0.4551,
+          "balanced_accuracy": 0.6052,
+          "rec_classe_2": 0.0625,
+          "rec_classe_3": 0.8529,
+          "tempo_segundos": 0.253
+        },
+        {
+          "fold": 5,
+          "macro_f1": 0.4679,
+          "balanced_accuracy": 0.6241,
+          "rec_classe_2": 0.1875,
+          "rec_classe_3": 0.7206,
+          "tempo_segundos": 0.243
+        }
+      ]
+    },
+    "LightGBM_Tabular": {
+      "modelo": "LightGBM_Tabular",
+      "tipo": "lgb_tab",
+      "balanceado": false,
+      "total_amostras": 14522,
+      "tempo_total_segundos": 1.84,
+      "tempo_medio_por_dobra": 0.37,
+      "macro_f1_medio": 0.4117,
+      "macro_f1_desvio": 0.0244,
+      "balanced_accuracy_media": 0.3853,
+      "oof_metricas": {
+        "total_amostras": 14522,
+        "acuracia_geral": 0.9207,
+        "macro_f1": 0.4127,
+        "balanced_accuracy": 0.3853,
+        "macro_precision": 0.5619,
+        "macro_recall": 0.3853,
+        "weighted_f1": 0.8981,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 13319,
+            "precision": 0.931,
+            "recall": 0.988,
+            "f1_score": 0.9586,
+            "tp": 13159,
+            "fp": 976,
+            "fn": 160,
+            "tn": 227
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 782,
+            "precision": 0.4046,
+            "recall": 0.0678,
+            "f1_score": 0.1161,
+            "tp": 53,
+            "fp": 78,
+            "fn": 729,
+            "tn": 13662
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 83,
+            "precision": 0.2857,
+            "recall": 0.0241,
+            "f1_score": 0.0444,
+            "tp": 2,
+            "fp": 5,
+            "fn": 81,
+            "tn": 14434
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 338,
+            "precision": 0.6265,
+            "recall": 0.4615,
+            "f1_score": 0.5315,
+            "tp": 156,
+            "fp": 93,
+            "fn": 182,
+            "tn": 14091
+          }
+        },
+        "matriz_confusao": [
+          [
+            13159,
+            77,
+            4,
+            79
+          ],
+          [
+            729,
+            53,
+            0,
+            0
+          ],
+          [
+            66,
+            1,
+            2,
+            14
+          ],
+          [
+            181,
+            0,
+            1,
+            156
+          ]
+        ]
+      },
+      "dobras": [
+        {
+          "fold": 1,
+          "macro_f1": 0.4158,
+          "balanced_accuracy": 0.3819,
+          "rec_classe_2": 0.0588,
+          "rec_classe_3": 0.4118,
+          "tempo_segundos": 0.356
+        },
+        {
+          "fold": 2,
+          "macro_f1": 0.3727,
+          "balanced_accuracy": 0.3553,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.3731,
+          "tempo_segundos": 0.354
+        },
+        {
+          "fold": 3,
+          "macro_f1": 0.412,
+          "balanced_accuracy": 0.3776,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.4478,
+          "tempo_segundos": 0.366
+        },
+        {
+          "fold": 4,
+          "macro_f1": 0.4494,
+          "balanced_accuracy": 0.4235,
+          "rec_classe_2": 0.0625,
+          "rec_classe_3": 0.5588,
+          "tempo_segundos": 0.381
+        },
+        {
+          "fold": 5,
+          "macro_f1": 0.4084,
+          "balanced_accuracy": 0.3883,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.5147,
+          "tempo_segundos": 0.385
+        }
+      ]
+    },
+    "LightGBM_Tabular_Balanceado": {
+      "modelo": "LightGBM_Tabular_Balanceado",
+      "tipo": "lgb_tab",
+      "balanceado": true,
+      "total_amostras": 14522,
+      "tempo_total_segundos": 1.83,
+      "tempo_medio_por_dobra": 0.37,
+      "macro_f1_medio": 0.46,
+      "macro_f1_desvio": 0.0154,
+      "balanced_accuracy_media": 0.6536,
+      "oof_metricas": {
+        "total_amostras": 14522,
+        "acuracia_geral": 0.7947,
+        "macro_f1": 0.4595,
+        "balanced_accuracy": 0.654,
+        "macro_precision": 0.4114,
+        "macro_recall": 0.654,
+        "weighted_f1": 0.8389,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 13319,
+            "precision": 0.9859,
+            "recall": 0.7939,
+            "f1_score": 0.8796,
+            "tp": 10574,
+            "fp": 151,
+            "fn": 2745,
+            "tn": 1052
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 782,
+            "precision": 0.2381,
+            "recall": 0.867,
+            "f1_score": 0.3737,
+            "tp": 678,
+            "fp": 2169,
+            "fn": 104,
+            "tn": 11571
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 83,
+            "precision": 0.0636,
+            "recall": 0.1325,
+            "f1_score": 0.0859,
+            "tp": 11,
+            "fp": 162,
+            "fn": 72,
+            "tn": 14277
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 338,
+            "precision": 0.3578,
+            "recall": 0.8225,
+            "f1_score": 0.4987,
+            "tp": 278,
+            "fp": 499,
+            "fn": 60,
+            "tn": 13685
+          }
+        },
+        "matriz_confusao": [
+          [
+            10574,
+            2160,
+            131,
+            454
+          ],
+          [
+            100,
+            678,
+            4,
+            0
+          ],
+          [
+            18,
+            9,
+            11,
+            45
+          ],
+          [
+            33,
+            0,
+            27,
+            278
+          ]
+        ]
+      },
+      "dobras": [
+        {
+          "fold": 1,
+          "macro_f1": 0.4706,
+          "balanced_accuracy": 0.6678,
+          "rec_classe_2": 0.1765,
+          "rec_classe_3": 0.8529,
+          "tempo_segundos": 0.371
+        },
+        {
+          "fold": 2,
+          "macro_f1": 0.4533,
+          "balanced_accuracy": 0.6502,
+          "rec_classe_2": 0.1765,
+          "rec_classe_3": 0.7612,
+          "tempo_segundos": 0.36
+        },
+        {
+          "fold": 3,
+          "macro_f1": 0.4847,
+          "balanced_accuracy": 0.6754,
+          "rec_classe_2": 0.1765,
+          "rec_classe_3": 0.8806,
+          "tempo_segundos": 0.375
+        },
+        {
+          "fold": 4,
+          "macro_f1": 0.4472,
+          "balanced_accuracy": 0.6514,
+          "rec_classe_2": 0.0625,
+          "rec_classe_3": 0.8676,
+          "tempo_segundos": 0.357
+        },
+        {
+          "fold": 5,
+          "macro_f1": 0.4442,
+          "balanced_accuracy": 0.623,
+          "rec_classe_2": 0.0625,
+          "rec_classe_3": 0.75,
+          "tempo_segundos": 0.364
+        }
+      ]
+    },
+    "LightGBM_Hibrido_768d": {
+      "modelo": "LightGBM_Hibrido_768d",
+      "tipo": "lgb_comb",
+      "balanceado": false,
+      "total_amostras": 14522,
+      "tempo_total_segundos": 52.47,
+      "tempo_medio_por_dobra": 10.49,
+      "macro_f1_medio": 0.4977,
+      "macro_f1_desvio": 0.0153,
+      "balanced_accuracy_media": 0.5042,
+      "oof_metricas": {
+        "total_amostras": 14522,
+        "acuracia_geral": 0.9381,
+        "macro_f1": 0.4981,
+        "balanced_accuracy": 0.5043,
+        "macro_precision": 0.6021,
+        "macro_recall": 0.5043,
+        "weighted_f1": 0.9162,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 13319,
+            "precision": 0.9456,
+            "recall": 0.9949,
+            "f1_score": 0.9696,
+            "tp": 13251,
+            "fp": 762,
+            "fn": 68,
+            "tn": 441
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 782,
+            "precision": 0.4298,
+            "recall": 0.0665,
+            "f1_score": 0.1152,
+            "tp": 52,
+            "fp": 69,
+            "fn": 730,
+            "tn": 13671
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 83,
+            "precision": 0.2,
+            "recall": 0.012,
+            "f1_score": 0.0227,
+            "tp": 1,
+            "fp": 4,
+            "fn": 82,
+            "tn": 14435
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 338,
+            "precision": 0.8329,
+            "recall": 0.9438,
+            "f1_score": 0.8849,
+            "tp": 319,
+            "fp": 64,
+            "fn": 19,
+            "tn": 14120
+          }
+        },
+        "matriz_confusao": [
+          [
+            13251,
+            68,
+            0,
+            0
+          ],
+          [
+            730,
+            52,
+            0,
+            0
+          ],
+          [
+            17,
+            1,
+            1,
+            64
+          ],
+          [
+            15,
+            0,
+            4,
+            319
+          ]
+        ]
+      },
+      "dobras": [
+        {
+          "fold": 1,
+          "macro_f1": 0.4836,
+          "balanced_accuracy": 0.4966,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.9412,
+          "tempo_segundos": 10.535
+        },
+        {
+          "fold": 2,
+          "macro_f1": 0.4886,
+          "balanced_accuracy": 0.4867,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.8806,
+          "tempo_segundos": 10.15
+        },
+        {
+          "fold": 3,
+          "macro_f1": 0.5252,
+          "balanced_accuracy": 0.5273,
+          "rec_classe_2": 0.0588,
+          "rec_classe_3": 0.9851,
+          "tempo_segundos": 10.479
+        },
+        {
+          "fold": 4,
+          "macro_f1": 0.5034,
+          "balanced_accuracy": 0.5091,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.9559,
+          "tempo_segundos": 10.572
+        },
+        {
+          "fold": 5,
+          "macro_f1": 0.4878,
+          "balanced_accuracy": 0.5014,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.9559,
+          "tempo_segundos": 10.739
+        }
+      ]
+    },
+    "LightGBM_Hibrido_768d_Balanceado": {
+      "modelo": "LightGBM_Hibrido_768d_Balanceado",
+      "tipo": "lgb_comb",
+      "balanceado": true,
+      "total_amostras": 14522,
+      "tempo_total_segundos": 56.9,
+      "tempo_medio_por_dobra": 11.38,
+      "macro_f1_medio": 0.5528,
+      "macro_f1_desvio": 0.0125,
+      "balanced_accuracy_media": 0.6711,
+      "oof_metricas": {
+        "total_amostras": 14522,
+        "acuracia_geral": 0.8361,
+        "macro_f1": 0.5535,
+        "balanced_accuracy": 0.6711,
+        "macro_precision": 0.5599,
+        "macro_recall": 0.6711,
+        "weighted_f1": 0.8724,
+        "por_classe": {
+          "0_Regular": {
+            "classe": 0,
+            "support": 13319,
+            "precision": 0.989,
+            "recall": 0.8368,
+            "f1_score": 0.9065,
+            "tp": 11145,
+            "fp": 124,
+            "fn": 2174,
+            "tn": 1079
+          },
+          "1_Defic_Tecnica": {
+            "classe": 1,
+            "support": 782,
+            "precision": 0.2341,
+            "recall": 0.8529,
+            "f1_score": 0.3674,
+            "tp": 667,
+            "fp": 2182,
+            "fn": 115,
+            "tn": 11558
+          },
+          "2_Defic_Orcamentaria": {
+            "classe": 2,
+            "support": 83,
+            "precision": 0.1818,
+            "recall": 0.0241,
+            "f1_score": 0.0426,
+            "tp": 2,
+            "fp": 9,
+            "fn": 81,
+            "tn": 14430
+          },
+          "3_Abandono": {
+            "classe": 3,
+            "support": 338,
+            "precision": 0.8346,
+            "recall": 0.9704,
+            "f1_score": 0.8974,
+            "tp": 328,
+            "fp": 65,
+            "fn": 10,
+            "tn": 14119
+          }
+        },
+        "matriz_confusao": [
+          [
+            11145,
+            2173,
+            1,
+            0
+          ],
+          [
+            112,
+            667,
+            3,
+            0
+          ],
+          [
+            7,
+            9,
+            2,
+            65
+          ],
+          [
+            5,
+            0,
+            5,
+            328
+          ]
+        ]
+      },
+      "dobras": [
+        {
+          "fold": 1,
+          "macro_f1": 0.5415,
+          "balanced_accuracy": 0.6581,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.9706,
+          "tempo_segundos": 11.586
+        },
+        {
+          "fold": 2,
+          "macro_f1": 0.57,
+          "balanced_accuracy": 0.6756,
+          "rec_classe_2": 0.0588,
+          "rec_classe_3": 0.9254,
+          "tempo_segundos": 11.383
+        },
+        {
+          "fold": 3,
+          "macro_f1": 0.5393,
+          "balanced_accuracy": 0.6599,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 0.9851,
+          "tempo_segundos": 11.551
+        },
+        {
+          "fold": 4,
+          "macro_f1": 0.5479,
+          "balanced_accuracy": 0.6728,
+          "rec_classe_2": 0.0,
+          "rec_classe_3": 1.0,
+          "tempo_segundos": 11.108
+        },
+        {
+          "fold": 5,
+          "macro_f1": 0.5653,
+          "balanced_accuracy": 0.689,
+          "rec_classe_2": 0.0625,
+          "rec_classe_3": 0.9706,
+          "tempo_segundos": 11.271
+        }
+      ]
+    }
+  },
+  "top_features": [
+    [
+      "base_cat",
+      45776.00206917811
+    ],
+    [
+      "exec_fisica",
+      28677.279641550147
+    ],
+    [
+      "emb_184",
+      18034.034186609617
+    ],
+    [
+      "emb_545",
+      13892.702558624975
+    ],
+    [
+      "valor_investimento",
+      13185.343965881159
+    ],
+    [
+      "exec_financeira",
+      12774.343933747836
+    ],
+    [
+      "uf_cat",
+      10793.389890319093
+    ],
+    [
+      "valor_desbloqueado",
+      10083.487130658581
+    ],
+    [
+      "emb_410",
+      7863.461425124024
+    ],
+    [
+      "emb_389",
+      7290.234591331201
+    ],
+    [
+      "emb_746",
+      5454.978126005541
+    ],
+    [
+      "emb_195",
+      4623.215857123247
+    ],
+    [
+      "emb_606",
+      4440.890403125085
+    ],
+    [
+      "emb_602",
+      3916.2785315967712
+    ],
+    [
+      "emb_560",
+      3604.7287819585017
+    ],
+    [
+      "emb_521",
+      3392.8782670028495
+    ],
+    [
+      "emb_733",
+      3176.202781600146
+    ],
+    [
+      "emb_394",
+      2961.049512388883
+    ],
+    [
+      "emb_585",
+      2788.4740451353346
+    ],
+    [
+      "emb_149",
+      2594.5166381569293
+    ],
+    [
+      "emb_543",
+      2521.2591798463777
+    ],
+    [
+      "emb_208",
+      2499.031602206809
+    ],
+    [
+      "emb_043",
+      2253.892358625055
+    ],
+    [
+      "emb_661",
+      2228.9838517344315
+    ],
+    [
+      "emb_030",
+      1924.1590166120102
+    ],
+    [
+      "emb_716",
+      1894.725570276668
+    ],
+    [
+      "emb_429",
+      1869.5511684509797
+    ],
+    [
+      "emb_414",
+      1719.333088665
+    ],
+    [
+      "emb_123",
+      1638.3297536151647
+    ],
+    [
+      "emb_555",
+      1598.3728382275258
+    ]
+  ],
+  "duracao_total_segundos": 130.62
+}
