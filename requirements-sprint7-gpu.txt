@@ -1,0 +1,11 @@
+# Requisitos para Treinamento e Inferência com GPU (Sprint 7 e 8)
+# Ambiente: .venv-sprint4-gpu (Python 3.14, PyTorch 2.14 cu130)
+torch==2.14.0+cu130
+transformers==4.57.6
+peft==0.21.2
+accelerate==1.15.0
+sentence-transformers==5.3.0
+safetensors==0.8.0
+scikit-learn
+pandas
+duckdb
