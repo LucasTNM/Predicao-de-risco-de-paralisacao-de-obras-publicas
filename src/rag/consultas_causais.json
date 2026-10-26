@@ -1,0 +1,20 @@
+{
+  "version": "1.0.0",
+  "sha256": "517175b35c7664aa2fe9dcbbe9410b178bbfc58d0ba2f48342e0f702426a6b30",
+  "prohibited_terms": [
+    "paralisad",
+    "em execu",
+    "situacao",
+    "concluid",
+    "reiniciad",
+    "em andamento",
+    "cadastrada",
+    "sem informacao"
+  ],
+  "queries": {
+    "regular": "execucao regular do objeto conforme cronograma fisico-financeiro, avanco das medicoes dentro do prazo previsto, cumprimento das etapas contratuais e conformidade com as metas pactuadas",
+    "tecnica": "deficiencia de projeto basico e executivo, falhas de engenharia, divergencias geotecnicas de solo, necessidade de revisao de tracado, inconformidades tecnicas estruturais e pareceres tecnicos de correcao",
+    "orcamentaria": "indisponibilidade orcamentaria, contingenciamento de recursos, atraso na liberacao de parcelas de empenho e repasse financeiro, contrapartida municipal ou estadual pendente e bloqueio de pagamentos",
+    "abandono": "descumprimento de clausulas contratuais pela empresa contratada, desmobilizacao injustificada de maquinas e canteiro de obras, rescisao unilateral, notificacoes extrajudiciais, aplicacao de sancoes administrativas e abandono de servicos"
+  }
+}
