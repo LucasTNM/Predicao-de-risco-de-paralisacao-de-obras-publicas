@@ -10,6 +10,7 @@ from src.modeling.loader import (
     compute_sample_weights,
     extract_embedding_matrix,
     extract_tabular_features,
+    prepare_dataset_matrices,
 )
 from src.modeling.metrics import compute_confusion_matrix, evaluate_multiclass
 from src.modeling.splitter import StratifiedGroupSplitter, audit_splits
@@ -138,3 +139,55 @@ def test_lightgbm_engine_synthetic_768d():
     probas = engine.predict_proba(X[:10])
     assert probas.shape == (10, 4)
     assert np.allclose(np.sum(probas, axis=1), 1.0, atol=1e-5)
+
+
+def test_feature_profiles_and_imputations():
+    """Valida perfis de atributos c0 vs c1_sem_proxies e passagem de imputacoes."""
+    df_train = pd.DataFrame({
+        "valor_investimento": [100.0, 200.0, 300.0],
+        "valor_desbloqueado": [50.0, np.nan, 150.0],  # mediana train = 100.0
+        "exec_fisica": [10.0, 20.0, 30.0],
+        "exec_financeira": [10.0, 20.0, 30.0],
+        "num_docs_validos": [1, 2, 0],
+        "num_chunks_validos": [2, 4, 0],
+        "has_embedding": [True, True, False],
+        "base": ["SICONV", "CAIXA", "SICONV"],
+        "uf": ["SP", "RJ", "SP"],
+        "label_risco": [0, 1, 0],
+        "id_tcu": ["1", "2", "3"]
+    })
+
+    # 1. Perfil C0 inclui proxies documentais
+    res_c0 = prepare_dataset_matrices(df_train, feature_profile="c0_original", include_embeddings=False)
+    assert "has_embedding" in res_c0["tab_feature_names"]
+    assert "num_docs_validos" in res_c0["tab_feature_names"]
+
+    # 2. Perfil C1 exclui proxies documentais
+    res_c1 = prepare_dataset_matrices(df_train, feature_profile="c1_sem_proxies", include_embeddings=False)
+    assert "has_embedding" not in res_c1["tab_feature_names"]
+    assert "num_docs_validos" not in res_c1["tab_feature_names"]
+    assert res_c1["tab_feature_names"] == ["valor_investimento", "valor_desbloqueado", "exec_fisica", "exec_financeira", "base_cat", "uf_cat"]
+    assert res_c1["numeric_imputations"]["valor_desbloqueado"] == 100.0
+
+    # 3. Aplicar imputacoes do treino no teste
+    df_test = pd.DataFrame({
+        "valor_investimento": [np.nan],
+        "valor_desbloqueado": [np.nan],
+        "exec_fisica": [np.nan],
+        "exec_financeira": [np.nan],
+        "base": ["CAIXA"],
+        "uf": ["SP"],
+        "label_risco": [0],
+        "id_tcu": ["4"]
+    })
+    res_test = prepare_dataset_matrices(
+        df_test,
+        categorical_mappings=res_c1["categorical_mappings"],
+        numeric_imputations=res_c1["numeric_imputations"],
+        feature_profile="c1_sem_proxies",
+        include_embeddings=False
+    )
+    # valor_desbloqueado no teste deve receber exatamente a mediana do treino (100.0)
+    col_idx = res_test["tab_feature_names"].index("valor_desbloqueado")
+    assert res_test["X_tab"][0, col_idx] == 100.0
+

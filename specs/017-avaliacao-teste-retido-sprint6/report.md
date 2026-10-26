@@ -5,6 +5,8 @@
 **Tempo Total de Execução**: 27.26 segundos
 **Status**: Concluído e Auditado com Sucesso
 
+> **Revisão pós-fechamento (2026-10-19):** auditoria somente leitura identificou vazamento do alvo nos atributos: fichas sintéticas com a situação "Paralisada" nos embeddings (classes 2 e 3) e proxies de presença documental para a classe 1. As métricas abaixo são preservadas como histórico da modelagem original. O rebaseline oficial sem vazamento foi concluído na [Feature 018](../018-auditoria-vazamento-rebaseline/report.md), demonstrando que o desempenho real multimodal (Cenário C2 — documentos autênticos sem fichas) no teste retido atinge **Macro-F1 de 0,4530 (LightGBM) / 0,4494 (Hierárquico)** e **Balanced Accuracy de 67,05% (LightGBM) / 65,61% (Hierárquico)**, com sensibilidade binária de risco de **91,72%**.
+
 ## 1. Contexto Metodológico e Integridade das Partições
 
 Em estrito cumprimento ao **Artigo I e IV da Constituição do Projeto**, a partição de teste retido (`dataset_teste_retido_2025.parquet`) foi mantida intocada durante todo o ciclo de busca de hiperparâmetros e engenharia de atributos (Features 014, 015 e 016). Os modelos foram treinados em 100% da partição de desenvolvimento (14.522 observações) e avaliados de forma cega nas 3.632 obras reservadas de 2025.
