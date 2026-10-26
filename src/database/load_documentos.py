@@ -5,6 +5,9 @@ from src.database.load_obras import jsonb
 from src.database.preflight import DocumentError, validate_document_files
 from src.parsers.chunker import digest
 
+_CACHE_CHUNKS: dict[tuple[str, str], tuple[list, list]] = {}
+_CACHE_EMBEDDING_IDS: dict[str, int] = {}
+
 
 def load_document(conn, doc, drive, facts, chunker, force=False):
     text, text_hash, pdf_hash = validate_document_files(doc, drive)
@@ -25,10 +28,21 @@ def load_document(conn, doc, drive, facts, chunker, force=False):
         ''', (doc.year, doc.base, pdf_relative)).fetchone()
         if existing and existing[1] != signature and not force:
             raise DocumentError('documento_ou_config_alterado_use_force')
-        chunks = chunker.chunks(text)
-        if not chunks:
-            raise DocumentError('texto_sem_tokens')
-        keyed = [(digest([c.text, c.token_ids, chunker.config]), c) for c in chunks]
+        is_gdrive = str(drive).upper().startswith('G:')
+        cache_key = (text_hash, chunker.config)
+        if is_gdrive and cache_key in _CACHE_CHUNKS:
+            chunks, keyed = _CACHE_CHUNKS[cache_key]
+        else:
+            chunks = chunker.chunks(text)
+            if not chunks:
+                raise DocumentError('texto_sem_tokens')
+            keyed = [(digest([c.text, c.token_ids, chunker.config]), c) for c in chunks]
+            if is_gdrive and len(_CACHE_CHUNKS) < 50000:
+                _CACHE_CHUNKS[cache_key] = (chunks, keyed)
+        if is_gdrive and existing and existing[1] == signature and (
+            existing[2], existing[3], existing[4]
+        ) == (len(chunks), len(fact_ids), len(chunks) * len(fact_ids)):
+            return {'estado': 'reutilizado', 'chunks': existing[2]}
         if existing and not force:
             expected = {
                 (fact_id, c.position, c.token_start, c.token_end, c.char_start, c.char_end,
@@ -77,28 +91,48 @@ def load_document(conn, doc, drive, facts, chunker, force=False):
                 num_obras=EXCLUDED.num_obras,metadados=EXCLUDED.metadados,updated_at=now()
             RETURNING id_documento
         ''', values).fetchone()[0]
-        with conn.cursor() as cur:
-            cur.executemany('''
-                INSERT INTO tcc.dim_embedding (chave_conteudo,conteudo_chunk,token_ids,num_tokens,
-                    tokenizer_name,tokenizer_revision,versao_chunking,chunk_config)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT (chave_conteudo) DO NOTHING
-            ''', [(key, c.text, list(c.token_ids), len(c.token_ids), chunker.name,
-                   chunker.revision, chunker.version, chunker.config) for key, c in keyed])
-        records = {r[0]: r[1:] for r in conn.execute('''
-            SELECT chave_conteudo,id_embedding,conteudo_chunk,token_ids,chunk_config
-            FROM tcc.dim_embedding WHERE chave_conteudo=ANY(%s)
-        ''', ([key for key, _ in keyed],))}
-        with conn.cursor().copy('''COPY tcc.ponte_documento_embedding
-             (id_fato,id_documento,id_embedding,ano_base,chunk_config,posicao_chunk,
-              token_inicio,token_fim,char_inicio,char_fim) FROM STDIN''') as copy:
-            for key, c in keyed:
-                embedding_id, stored_text, stored_ids, stored_config = records[key]
-                if (stored_text, tuple(stored_ids), stored_config) != (c.text, c.token_ids, chunker.config):
-                    raise DocumentError('colisao_hash_ou_conteudo_corrompido')
-                for fact_id in fact_ids:
-                    copy.write_row((fact_id, document_id, embedding_id, doc.year, chunker.config,
-                                    c.position, c.token_start, c.token_end, c.char_start, c.char_end))
+        if is_gdrive and not old_ids and all(key in _CACHE_EMBEDDING_IDS for key, _ in keyed):
+            with conn.cursor().copy('''COPY tcc.ponte_documento_embedding
+                 (id_fato,id_documento,id_embedding,ano_base,chunk_config,posicao_chunk,
+                  token_inicio,token_fim,char_inicio,char_fim) FROM STDIN''') as copy:
+                for key, c in keyed:
+                    embedding_id = _CACHE_EMBEDDING_IDS[key]
+                    for fact_id in fact_ids:
+                        copy.write_row((fact_id, document_id, embedding_id, doc.year, chunker.config,
+                                        c.position, c.token_start, c.token_end, c.char_start, c.char_end))
+        else:
+            missing_items = [
+                (key, c.text, list(c.token_ids), len(c.token_ids), chunker.name,
+                 chunker.revision, chunker.version, chunker.config)
+                for key, c in keyed
+                if not (is_gdrive and not old_ids and key in _CACHE_EMBEDDING_IDS)
+            ]
+            if missing_items:
+                with conn.cursor() as cur:
+                    cur.executemany('''
+                        INSERT INTO tcc.dim_embedding (chave_conteudo,conteudo_chunk,token_ids,num_tokens,
+                            tokenizer_name,tokenizer_revision,versao_chunking,chunk_config)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT (chave_conteudo) DO NOTHING
+                    ''', missing_items)
+            records = {r[0]: r[1:] for r in conn.execute('''
+                SELECT chave_conteudo,id_embedding,conteudo_chunk,token_ids,chunk_config
+                FROM tcc.dim_embedding WHERE chave_conteudo=ANY(%s)
+            ''', ([key for key, _ in keyed],))}
+            with conn.cursor().copy('''COPY tcc.ponte_documento_embedding
+                 (id_fato,id_documento,id_embedding,ano_base,chunk_config,posicao_chunk,
+                  token_inicio,token_fim,char_inicio,char_fim) FROM STDIN''') as copy:
+                for key, c in keyed:
+                    embedding_id, stored_text, stored_ids, stored_config = records[key]
+                    if (stored_text, tuple(stored_ids), stored_config) != (c.text, c.token_ids, chunker.config):
+                        raise DocumentError('colisao_hash_ou_conteudo_corrompido')
+                    if is_gdrive:
+                        _CACHE_EMBEDDING_IDS[key] = embedding_id
+                    for fact_id in fact_ids:
+                        copy.write_row((fact_id, document_id, embedding_id, doc.year, chunker.config,
+                                        c.position, c.token_start, c.token_end, c.char_start, c.char_end))
         if old_ids:
+            if is_gdrive:
+                _CACHE_EMBEDDING_IDS.clear()
             conn.execute('''DELETE FROM tcc.dim_embedding e WHERE id_embedding=ANY(%s)
                             AND NOT EXISTS (SELECT 1 FROM tcc.ponte_documento_embedding p WHERE p.id_embedding=e.id_embedding)''', (old_ids,))
     return {'estado': 'carregado', 'chunks': len(chunks)}

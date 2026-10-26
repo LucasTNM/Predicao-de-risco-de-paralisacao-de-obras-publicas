@@ -9,7 +9,7 @@ from pathlib import Path
 import tempfile
 import time
 
-from src.config import ANOS_DISPONIVEIS, BASE_DRIVE, ROOT_DIR, LOGS_DIR
+from src.config import ANOS_DISPONIVEIS, ANOS_PAINEL_TCU, BASE_DRIVE, ROOT_DIR, LOGS_DIR
 from src.database.preflight import audit_sources, file_hash
 
 
@@ -51,12 +51,15 @@ def save_report(path, report):
 
 def run_load(year=None, base=None, limit=None, dry_run=False, force=False,
              root=ROOT_DIR, drive=BASE_DRIVE, *, exclude_quarantine=False):
-    if year and str(year) not in ANOS_DISPONIVEIS:
-        raise ValueError('Ano de carga deve ser 2025 ou 2026.')
+    if year and str(year).strip().lower() == 'todos':
+        years = [int(y) for y in ANOS_PAINEL_TCU]
+    elif year and str(year) not in set(ANOS_DISPONIVEIS) | set(ANOS_PAINEL_TCU):
+        raise ValueError('Ano de carga deve estar entre 2022 e 2026.')
+    else:
+        years = [int(year)] if year else [int(y) for y in ANOS_DISPONIVEIS]
     if limit is not None and limit < 1:
         raise ValueError('Limite deve ser positivo.')
     base = base.strip().lower() if base else None
-    years = [int(year)] if year else [int(y) for y in ANOS_DISPONIVEIS]
     tag = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
     report_path = LOGS_DIR / f'sprint3_{tag}.json'
     report = {'inicio': tag, 'dry_run': dry_run, 'limit_por_base': limit, 'base': base,
@@ -153,7 +156,7 @@ def run_load(year=None, base=None, limit=None, dry_run=False, force=False,
                     report['falhas_carga'].append({'ano': doc.year, 'base': doc.base,
                         'txt': doc.txt, 'motivo': str(exc), 'tipo': type(exc).__name__})
                 processed = results['carregado'] + results['reutilizado'] + results['falhas']
-                if processed % 100 == 0:
+                if processed % 500 == 0:
                     report['resultados'] = dict(results)
                     save()
                     print(f'[carga] {processed} documentos, {results["falhas"]} falhas, {time.monotonic()-started:.0f}s', flush=True)

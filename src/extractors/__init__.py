@@ -2,11 +2,11 @@
 """
 src/extractors
 ==============
-Módulos dedicados para extração, download e geração de documentos
+Módulos dedicados para extração, download e validação de documentos autênticos
 de auditoria de obras públicas federais.
 """
 
-from src.extractors.pncp import coletar_obra_pncp
+from src.extractors.pncp import PNCPContractsIndex, coletar_obra_pncp
 from src.extractors.transferegov import (
     TransferegovHttpSession,
     coletar_obra_transferegov,
@@ -18,6 +18,7 @@ from src.extractors.tecnicos import (
 )
 
 __all__ = [
+    "PNCPContractsIndex",
     "coletar_obra_pncp",
     "coletar_obra_transferegov",
     "TransferegovHttpSession",

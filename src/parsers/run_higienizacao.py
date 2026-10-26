@@ -35,6 +35,7 @@ from src.config import (
 )
 from src.parsers.limpeza_llm import GeminiErro, limpar_texto_camada2
 from src.parsers.limpeza_nlp import calcular_score_sujeira, limpar_texto_camada1
+from src.utils import eh_ficha_sintetica_legada
 
 
 COLUNAS_LOG_HIGIENIZACAO = [
@@ -53,6 +54,36 @@ COLUNAS_LOG_HIGIENIZACAO = [
 ]
 
 _LOCK_LOG_HIGIENIZACAO = threading.Lock()
+_INDICE_CROSS_LIMPO: dict[tuple[str, str], tuple[Path, dict[str, str]]] = {}
+
+
+def _carregar_indice_cross_limpo(base_drive: Path) -> None:
+    """Indexa textos limpos já processados em qualquer ano (2022–2026) para reuso O(1)."""
+    if _INDICE_CROSS_LIMPO:
+        return
+    for ano in ANOS_DISPONIVEIS:
+        pasta_saida = base_drive / f"{ano}_Textos_Limpos"
+        caminho_csv = pasta_saida / "log_higienizacao.csv"
+        if not caminho_csv.exists():
+            continue
+        try:
+            with open(caminho_csv, "r", encoding="utf-8", errors="replace") as f:
+                for row in csv.DictReader(f):
+                    status = (row.get("status") or "").strip().upper()
+                    if status != "OK":
+                        continue
+                    base = (row.get("base_de_dados") or "").strip().lower()
+                    nome_in = (row.get("nome_txt_entrada") or "").strip()
+                    nome_out = (row.get("nome_txt_saida") or "").strip()
+                    if not base or not nome_in or not nome_out or eh_ficha_sintetica_legada(nome_in):
+                        continue
+                    chave = (base, nome_in)
+                    if chave not in _INDICE_CROSS_LIMPO:
+                        caminho_txt = pasta_saida / base / nome_out
+                        _INDICE_CROSS_LIMPO[chave] = (caminho_txt, row)
+        except Exception as exc:
+            logger.warning("Aviso ao carregar índice cross-ano de textos limpos (%s): %s", ano, exc)
+    logger.info("Índice Cross-Ano de Textos Limpos: %d textos disponíveis para reuso O(1).", len(_INDICE_CROSS_LIMPO))
 
 
 @dataclass
@@ -141,6 +172,10 @@ def salvar_texto_higienizado_e_registrar_log(
     chave = (str(ano_base).strip(), base_nome.strip().lower(), caminho_entrada.name.strip())
 
     try:
+        for _ in range(30):
+            if caminho_saida.parent.parent.exists():
+                break
+            time.sleep(2.0)
         caminho_saida.parent.mkdir(parents=True, exist_ok=True)
         temporario = caminho_saida.with_name(f".{caminho_saida.name}.{threading.get_ident()}.tmp")
         temporario.write_text(texto_limpo, encoding="utf-8")
@@ -152,22 +187,30 @@ def salvar_texto_higienizado_e_registrar_log(
     with _LOCK_LOG_HIGIENIZACAO:
         try:
             inicializar_log_higienizacao_csv(caminho_csv)
+            row_values = [
+                datetime.now().isoformat(),
+                ano_base,
+                base_nome.strip().lower(),
+                caminho_entrada.name,
+                caminho_saida.name,
+                metodo_limpeza,
+                f"{score_antes:.6f}",
+                f"{score_depois:.6f}",
+                total_chars_antes,
+                len(texto_limpo),
+                status,
+                observacoes,
+            ]
             with open(caminho_csv, "a", newline="", encoding="utf-8") as arquivo:
-                csv.writer(arquivo).writerow([
-                    datetime.now().isoformat(),
-                    ano_base,
-                    base_nome.strip().lower(),
-                    caminho_entrada.name,
-                    caminho_saida.name,
-                    metodo_limpeza,
-                    f"{score_antes:.6f}",
-                    f"{score_depois:.6f}",
-                    total_chars_antes,
-                    len(texto_limpo),
-                    status,
-                    observacoes,
-                ])
+                csv.writer(arquivo).writerow(row_values)
             cache_log[chave] = status.upper()
+            if status.upper() == "OK" and not eh_ficha_sintetica_legada(caminho_entrada.name):
+                chave_cross = (base_nome.strip().lower(), caminho_entrada.name.strip())
+                if chave_cross not in _INDICE_CROSS_LIMPO:
+                    _INDICE_CROSS_LIMPO[chave_cross] = (
+                        caminho_saida,
+                        dict(zip(COLUNAS_LOG_HIGIENIZACAO, [str(v) for v in row_values])),
+                    )
             return True
         except (OSError, csv.Error) as exc:
             logger.error("Falha ao registrar manifesto de higienização para %s: %s", caminho_entrada.name, exc)
@@ -181,6 +224,7 @@ def _processar_camada1(
     base_nome: str,
     cache_log: dict[tuple[str, str, str], str],
     caminho_csv: Path,
+    usar_reuso_cross: bool = False,
 ) -> ResultadoCamada1:
     """Worker concorrente: lê, limpa e persiste resultados que não usam LLM.
 
@@ -190,6 +234,43 @@ def _processar_camada1(
     """
     resultado = ResultadoCamada1(caminho_entrada, caminho_saida, ano_base, base_nome)
     try:
+        for _ in range(30):
+            if caminho_entrada.parent.parent.exists():
+                break
+            time.sleep(2.0)
+
+        chave_cross = (base_nome.strip().lower(), caminho_entrada.name.strip())
+        if usar_reuso_cross and chave_cross in _INDICE_CROSS_LIMPO:
+            caminho_origem, row_origem = _INDICE_CROSS_LIMPO[chave_cross]
+            if caminho_origem.exists():
+                try:
+                    texto_reuso = caminho_origem.read_text(encoding="utf-8", errors="replace")
+                    if len(texto_reuso.strip()) >= 100:
+                        resultado.texto_limpo = texto_reuso
+                        resultado.total_chars_antes = int(row_origem.get("total_chars_antes") or len(texto_reuso))
+                        resultado.score_antes = float(row_origem.get("score_sujeira_antes") or 0.0)
+                        resultado.score_camada1 = float(row_origem.get("score_sujeira_depois") or 0.0)
+                        resultado.persistencia_tentada = True
+                        resultado.persistido = salvar_texto_higienizado_e_registrar_log(
+                            caminho_entrada=resultado.caminho_entrada,
+                            caminho_saida=resultado.caminho_saida,
+                            texto_limpo=resultado.texto_limpo,
+                            ano_base=resultado.ano_base,
+                            base_nome=resultado.base_nome,
+                            metodo_limpeza=row_origem.get("metodo_limpeza") or "CAMADA1",
+                            score_antes=resultado.score_antes,
+                            score_depois=resultado.score_camada1,
+                            total_chars_antes=resultado.total_chars_antes,
+                            status="OK",
+                            observacoes=f"REUSO_CROSS_ANO:{row_origem.get('ano_base', '')}",
+                            cache_log=cache_log,
+                            caminho_csv=caminho_csv,
+                        )
+                        if resultado.persistido:
+                            return resultado
+                except Exception:
+                    pass
+
         texto_bruto = caminho_entrada.read_text(encoding="utf-8", errors="replace")
         resultado.total_chars_antes = len(texto_bruto)
         resultado.score_antes = calcular_score_sujeira(texto_bruto)
@@ -301,6 +382,10 @@ def _executar_ano(
         stats.tempo_total_segundos = round(time.perf_counter() - inicio, 2)
         return stats
 
+    usar_reuso_cross = (base_drive == BASE_DRIVE) and not force
+    if usar_reuso_cross:
+        _carregar_indice_cross_limpo(base_drive)
+
     cache_log = carregar_textos_ja_higienizados(caminho_csv)
     if base_especifica:
         bases = [base_especifica.strip().lower()]
@@ -330,6 +415,8 @@ def _executar_ano(
             logger.warning("Não foi possível listar textos da base %s: %s", base_nome, exc)
             continue
         for caminho_entrada in arquivos_txt:
+            if eh_ficha_sintetica_legada(caminho_entrada.name):
+                continue
             stats.total_encontrados += 1
             chave = (str(ano_base), base_nome, caminho_entrada.name)
             if not force and cache_log.get(chave) == "OK":
@@ -365,6 +452,7 @@ def _executar_ano(
                 base,
                 cache_log,
                 caminho_csv,
+                usar_reuso_cross,
             ): entrada
             for entrada, saida, base in candidatos
         }
@@ -427,7 +515,7 @@ def _executar_ano(
                 else:
                     stats.falhas += 1
 
-            if stats.processados_lote % 25 == 0 or stats.processados_lote == len(candidatos):
+            if stats.processados_lote % 250 == 0 or stats.processados_lote == len(candidatos):
                 logger.info(
                     "Higienização %s/%s (%.1f%%) | último: %s",
                     stats.processados_lote,

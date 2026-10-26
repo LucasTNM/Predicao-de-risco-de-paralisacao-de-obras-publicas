@@ -17,10 +17,15 @@ from __future__ import annotations
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import csv
+import datetime
 from dataclasses import dataclass
 from pathlib import Path
+import shutil
 import sys
+import threading
 import time
+from typing import Any
 
 # Força UTF-8 no console do Windows
 if sys.platform == "win32":
@@ -34,6 +39,7 @@ if str(ROOT_DIR) not in sys.path:
 
 from src.config import (
     ANO_BASE,
+    ANOS_PAINEL_TCU,
     BASE_DRIVE,
     BASES_SUPORTADAS,
     PASTA_DADOS_BRUTOS,
@@ -54,10 +60,49 @@ from src.parsers.pdf_to_text import (
     processar_pdf,
 )
 from src.parsers.storage import (
+    _LOCK_LOG_EXTRACAO,
     carregar_pdfs_ja_processados,
     inicializar_log_extracao_csv,
     salvar_texto_e_registrar_log,
 )
+from src.utils import eh_ficha_sintetica_legada
+
+_LOCK_CROSS_TXT = threading.Lock()
+_INDICE_CROSS_TXT: dict[tuple[str, str], tuple[Path, dict[str, Any]]] = {}
+_CROSS_TXT_CARREGADO = False
+
+
+def _carregar_indice_cross_ano_txt() -> dict[tuple[str, str], tuple[Path, dict[str, Any]]]:
+    """
+    Carrega em memória O(1) os textos já extraídos em qualquer safra (`2022`..`2026`):
+    `(base_lower, nome_pdf) -> (caminho_txt, metadados_log)`
+    """
+    global _CROSS_TXT_CARREGADO
+    with _LOCK_CROSS_TXT:
+        if _CROSS_TXT_CARREGADO:
+            return _INDICE_CROSS_TXT
+        for ano in ANOS_PAINEL_TCU:
+            pasta_txt_ano = BASE_DRIVE / f"{ano}_Textos_extraidos"
+            csv_path = pasta_txt_ano / "log_extracao.csv"
+            if not csv_path.exists():
+                continue
+            try:
+                with open(csv_path, "r", encoding="utf-8", errors="replace") as f:
+                    for row in csv.DictReader(f):
+                        status = (row.get("status") or "").strip().upper()
+                        if status not in ("OK", "OCR_PARCIAL"):
+                            continue
+                        base_l = (row.get("base_de_dados") or "").strip().lower()
+                        nome_pdf = (row.get("nome_pdf") or "").strip()
+                        nome_txt = (row.get("nome_txt") or "").strip()
+                        if not base_l or not nome_pdf or not nome_txt or eh_ficha_sintetica_legada(nome_pdf):
+                            continue
+                        caminho_txt = pasta_txt_ano / base_l / nome_txt
+                        _INDICE_CROSS_TXT.setdefault((base_l, nome_pdf), (caminho_txt, dict(row)))
+            except Exception:
+                pass
+        _CROSS_TXT_CARREGADO = True
+        return _INDICE_CROSS_TXT
 
 
 @dataclass
@@ -89,12 +134,61 @@ def processar_um_arquivo(
     dpi: int = DPI_OCR_PADRAO,
 ) -> tuple[str, ResultadoExtracao]:
     """
-    Processa um único PDF com blindagem total contra exceções.
+    Processa um único PDF com blindagem total contra exceções e reuso Cross-Ano O(1).
     Nunca propaga exceções para não interromper a thread/loop principal.
     """
     caminho_txt = pasta_saida_base / f"{caminho_pdf.stem}.txt"
+    chave_cross = (str(base_nome).strip().lower(), caminho_pdf.name.strip())
+
+    # Aguarda reconexão caso o Google Drive Desktop (G:\) sofra micro-desconexão durante sync pesado
+    for _ in range(30):
+        if BASE_DRIVE.exists():
+            break
+        time.sleep(2.0)
 
     try:
+        if not forcar_ocr and chave_cross in _INDICE_CROSS_TXT:
+            src_txt, meta = _INDICE_CROSS_TXT[chave_cross]
+            if src_txt.exists() and src_txt.stat().st_size > 0:
+                if src_txt.resolve() != caminho_txt.resolve() and not caminho_txt.exists():
+                    caminho_txt.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(src_txt, caminho_txt)
+                tot_chars = int(meta.get("total_chars") or 0)
+                tot_pags = int(meta.get("total_paginas") or 1)
+                metodo_m = str(meta.get("metodo_extracao") or "NATIVO")
+                status_m = str(meta.get("status") or "OK")
+                hash_m = str(meta.get("sha256_pdf") or "")
+                res_reuso = ResultadoExtracao(
+                    texto_completo="",
+                    total_chars=tot_chars,
+                    total_paginas=tot_pags,
+                    paginas_com_texto=tot_pags,
+                    metodo=metodo_m,  # type: ignore[arg-type]
+                    tempo_segundos=0.001,
+                )
+                chave_log = (str(ano_base).strip(), str(base_nome).strip().lower(), caminho_pdf.name.strip())
+                with _LOCK_LOG_EXTRACAO:
+                    inicializar_log_extracao_csv(caminho_csv)
+                    with open(caminho_csv, "a", newline="", encoding="utf-8") as f:
+                        writer = csv.writer(f)
+                        writer.writerow([
+                            datetime.datetime.now().isoformat(),
+                            ano_base,
+                            base_nome.strip().lower(),
+                            caminho_pdf.name,
+                            caminho_txt.name,
+                            metodo_m,
+                            tot_pags,
+                            tot_chars,
+                            f"{res_reuso.densidade_media:.2f}",
+                            "0.0010",
+                            status_m,
+                            hash_m,
+                            f"Reuso Cross-Ano O(1) ({src_txt.parent.parent.name})",
+                        ])
+                    cache_log[chave_log] = status_m
+                return "SUCESSO_NATIVO", res_reuso
+
         # Executa extração com tratamento de erro granular
         resultado = processar_pdf(
             caminho_pdf=caminho_pdf,
@@ -112,6 +206,22 @@ def processar_um_arquivo(
             cache_log=cache_log,
             caminho_csv=caminho_csv,
         )
+
+        if resultado.total_chars > 0 and caminho_txt.exists():
+            with _LOCK_CROSS_TXT:
+                _INDICE_CROSS_TXT.setdefault(
+                    chave_cross,
+                    (
+                        caminho_txt,
+                        {
+                            "metodo_extracao": resultado.metodo,
+                            "total_paginas": str(resultado.total_paginas),
+                            "total_chars": str(resultado.total_chars),
+                            "status": "OCR_PARCIAL" if resultado.metodo == "NATIVO+OCR" else "OK",
+                            "sha256_pdf": "",
+                        },
+                    ),
+                )
 
         if resultado.metodo == "NATIVO":
             status_retorno = "SUCESSO_NATIVO"
@@ -209,8 +319,14 @@ def executar_pipeline_extracao(
     pasta_textos = BASE_DRIVE / f"{ano_base}_Textos_extraidos"
     caminho_csv = pasta_textos / "log_extracao.csv"
 
+    for _ in range(30):
+        if BASE_DRIVE.exists():
+            break
+        time.sleep(2.0)
+
     inicializar_log_extracao_csv(caminho_csv)
     cache_log = carregar_pdfs_ja_processados(caminho_csv)
+    _carregar_indice_cross_ano_txt()
 
     print(f"\n🚀 Iniciando Pipeline de Extração de Texto & OCR (Ano: {ano_base})")
     print(f"📂 Diretório de Entrada: {pasta_dados_brutos}")
@@ -239,6 +355,8 @@ def executar_pipeline_extracao(
         pasta_base_out = obter_pasta_textos_base(base_nome, ano_base=ano_base)
 
         for pdf_path in pasta_base_in.glob("*.pdf"):
+            if eh_ficha_sintetica_legada(pdf_path.name):
+                continue
             stats.total_encontrados += 1
             chave = (str(ano_base).strip(), str(base_nome).strip().lower(), pdf_path.name.strip())
 
@@ -312,10 +430,10 @@ def executar_pipeline_extracao(
                 else:
                     stats.falhas_outras += 1
 
-                # Log de progresso a cada 25 arquivos
-                if stats.processados_lote % 25 == 0 or stats.processados_lote == len(candidatos_para_processar):
+                # Log de progresso a cada 250 arquivos
+                if stats.processados_lote % 250 == 0 or stats.processados_lote == len(candidatos_para_processar):
                     logger.info(
-                        f"Progresso: {stats.processados_lote}/{len(candidatos_para_processar)} "
+                        f"Progresso ({ano_base}): {stats.processados_lote}/{len(candidatos_para_processar)} "
                         f"({(stats.processados_lote / len(candidatos_para_processar)) * 100:.1f}%) | "
                         f"Último: {pdf_orig.name[:35]}... [{status_res}]"
                     )

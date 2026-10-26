@@ -1,0 +1,191 @@
+{
+  "feature": "021-revisao-expansao-coleta",
+  "fase": "Fase 2 - Validação do Motor Multiformato In-Memory e Gatekeeper Anti-Lixo",
+  "total_testes": 9,
+  "testes_aprovados": 9,
+  "status_global": "100% PASS",
+  "resultados": [
+    {
+      "teste": "PDF_DENSO",
+      "status": "PASS",
+      "detalhes": {
+        "nome_origem": "Laudo_Vistoria_Obra.pdf",
+        "caminho_interno_zip": null,
+        "formato_detectado": "pdf",
+        "tamanho_bytes": 2044,
+        "sha256": "fb77270901c29c6c891021db1668b79cdd73c075c0f3ae3391f2650063b31b99",
+        "aprovado_gatekeeper": true,
+        "motivo_gatekeeper": "APROVADO_GATEKEEPER(1454 chars uteis | 16 linhas densas)",
+        "chars_brutos": 1464,
+        "chars_uteis_corridos": 1454,
+        "paragrafos_validos": 16,
+        "eh_email_bloqueado": false,
+        "eh_espelho_html": false,
+        "texto_util_preview": "RELATÓRIO TÉCNICO DE VISTORIA E PARECER DE ENGENHARIA SOBRE PARALISAÇÃO DE OBRA\n1. HISTÓRICO CONTRATUAL E OBJETO DO EMPREENDIMENTO\nO presente Parecer Técnico tem por finalidade registrar a vistoria in loco realizada na obra de implantação e\npavimentação asfáltica vinculada ao Termo de Compromisso Federal, analisando as causas determinantes\nda interrupção do cronograma físico-financeiro vigente.\n2.",
+        "erros": []
+      }
+    },
+    {
+      "teste": "DOCX_DENSO",
+      "status": "PASS",
+      "detalhes": {
+        "nome_origem": "Parecer_Tecnico_Aditivo.docx",
+        "caminho_interno_zip": null,
+        "formato_detectado": "docx",
+        "tamanho_bytes": 36165,
+        "sha256": "685a907bd8b9b4c8684c494964136f3f4cb7cbe10bd96c0fef87f6b732dcdedd",
+        "aprovado_gatekeeper": true,
+        "motivo_gatekeeper": "APROVADO_GATEKEEPER(1463 chars uteis | 6 linhas densas)",
+        "chars_brutos": 1466,
+        "chars_uteis_corridos": 1463,
+        "paragrafos_validos": 6,
+        "eh_email_bloqueado": false,
+        "eh_espelho_html": false,
+        "texto_util_preview": "RELATÓRIO TÉCNICO DE VISTORIA E PARECER DE ENGENHARIA SOBRE PARALISAÇÃO DE OBRA PÚBLICA.\n1. HISTÓRICO CONTRATUAL E OBJETO DO EMPREENDIMENTO\nO presente Parecer Técnico tem por finalidade registrar a vistoria in loco realizada na obra de implantação e pavimentação asfáltica vinculada ao Termo de Compromisso Federal, analisando as causas determinantes da interrupção do cronograma físico-financeiro vi",
+        "erros": []
+      }
+    },
+    {
+      "teste": "DOCX_COM_EXTENSAO_PDF_FORCADA",
+      "status": "PASS",
+      "detalhes": {
+        "nome_origem": "DNIT_compras_2024_10_1_Outros_Documentos.pdf",
+        "caminho_interno_zip": null,
+        "formato_detectado": "docx",
+        "tamanho_bytes": 36165,
+        "sha256": "685a907bd8b9b4c8684c494964136f3f4cb7cbe10bd96c0fef87f6b732dcdedd",
+        "aprovado_gatekeeper": true,
+        "motivo_gatekeeper": "APROVADO_GATEKEEPER(1463 chars uteis | 6 linhas densas)",
+        "chars_brutos": 1466,
+        "chars_uteis_corridos": 1463,
+        "paragrafos_validos": 6,
+        "eh_email_bloqueado": false,
+        "eh_espelho_html": false,
+        "texto_util_preview": "RELATÓRIO TÉCNICO DE VISTORIA E PARECER DE ENGENHARIA SOBRE PARALISAÇÃO DE OBRA PÚBLICA.\n1. HISTÓRICO CONTRATUAL E OBJETO DO EMPREENDIMENTO\nO presente Parecer Técnico tem por finalidade registrar a vistoria in loco realizada na obra de implantação e pavimentação asfáltica vinculada ao Termo de Compromisso Federal, analisando as causas determinantes da interrupção do cronograma físico-financeiro vi",
+        "erros": []
+      }
+    },
+    {
+      "teste": "ODT_DENSO",
+      "status": "PASS",
+      "detalhes": {
+        "nome_origem": "Memorial_Descritivo.odt",
+        "caminho_interno_zip": null,
+        "formato_detectado": "odt",
+        "tamanho_bytes": 2285,
+        "sha256": "e5287e7164c4ebf8768640efaa5b7a317ca46892410270c1ed6148ffc362bdff",
+        "aprovado_gatekeeper": true,
+        "motivo_gatekeeper": "APROVADO_GATEKEEPER(1463 chars uteis | 6 linhas densas)",
+        "chars_brutos": 1466,
+        "chars_uteis_corridos": 1463,
+        "paragrafos_validos": 6,
+        "eh_email_bloqueado": false,
+        "eh_espelho_html": false,
+        "texto_util_preview": "RELATÓRIO TÉCNICO DE VISTORIA E PARECER DE ENGENHARIA SOBRE PARALISAÇÃO DE OBRA PÚBLICA.\n1. HISTÓRICO CONTRATUAL E OBJETO DO EMPREENDIMENTO\nO presente Parecer Técnico tem por finalidade registrar a vistoria in loco realizada na obra de implantação e pavimentação asfáltica vinculada ao Termo de Compromisso Federal, analisando as causas determinantes da interrupção do cronograma físico-financeiro vi",
+        "erros": []
+      }
+    },
+    {
+      "teste": "RTF_DENSO",
+      "status": "PASS",
+      "detalhes": {
+        "nome_origem": "Termo_Rescisao_Contratual.rtf",
+        "caminho_interno_zip": null,
+        "formato_detectado": "rtf",
+        "tamanho_bytes": 1684,
+        "sha256": "55d38136152a12ca4d60eeb35596b16052b284fff4d79ff8f5c0c1392f2316ae",
+        "aprovado_gatekeeper": true,
+        "motivo_gatekeeper": "APROVADO_GATEKEEPER(1463 chars uteis | 6 linhas densas)",
+        "chars_brutos": 1466,
+        "chars_uteis_corridos": 1463,
+        "paragrafos_validos": 6,
+        "eh_email_bloqueado": false,
+        "eh_espelho_html": false,
+        "texto_util_preview": "RELATÓRIO TÉCNICO DE VISTORIA E PARECER DE ENGENHARIA SOBRE PARALISAÇÃO DE OBRA PÚBLICA.\n1. HISTÓRICO CONTRATUAL E OBJETO DO EMPREENDIMENTO\nO presente Parecer Técnico tem por finalidade registrar a vistoria in loco realizada na obra de implantação e pavimentação asfáltica vinculada ao Termo de Compromisso Federal, analisando as causas determinantes da interrupção do cronograma físico-financeiro vi",
+        "erros": []
+      }
+    },
+    {
+      "teste": "BLOQUEIO_EMAIL_REGEX",
+      "status": "PASS",
+      "detalhes": {
+        "nome_origem": "Notificacao_Email.pdf",
+        "caminho_interno_zip": null,
+        "formato_detectado": "pdf",
+        "tamanho_bytes": 1506,
+        "sha256": "dfe667a6b9f5c17b2efb97d080c71c7f20185ef644898d59975e6221a35a067b",
+        "aprovado_gatekeeper": false,
+        "motivo_gatekeeper": "BLOQUEADO_REGEX_EMAIL[COMPROVANTE_EMAIL_DETECTADO(headers=4)]",
+        "chars_brutos": 2355,
+        "chars_uteis_corridos": 0,
+        "paragrafos_validos": 0,
+        "eh_email_bloqueado": true,
+        "eh_espelho_html": false,
+        "texto_util_preview": "",
+        "erros": []
+      }
+    },
+    {
+      "teste": "BLOQUEIO_DESPACHO_CURTO_MENOR_800_CHARS",
+      "status": "PASS",
+      "detalhes": {
+        "nome_origem": "Despacho_Simples.pdf",
+        "caminho_interno_zip": null,
+        "formato_detectado": "pdf",
+        "tamanho_bytes": 1115,
+        "sha256": "516527f0010ffaf3496d02bf487b9c34be6e093a494f515fec6849e451016b31",
+        "aprovado_gatekeeper": false,
+        "motivo_gatekeeper": "BAIXA_DENSIDADE_SEMANTICA(150 < 800 chars uteis)",
+        "chars_brutos": 151,
+        "chars_uteis_corridos": 150,
+        "paragrafos_validos": 1,
+        "eh_email_bloqueado": false,
+        "eh_espelho_html": false,
+        "texto_util_preview": "MINISTÉRIO DOS TRANSPORTES\nDESPACHO DE ENCAMINHAMENTO\nEncaminhe-se o presente processo administrativo à Coordenação-Geral para ciência e arquivamento.",
+        "erros": []
+      }
+    },
+    {
+      "teste": "BLOQUEIO_ESPELHO_HTML",
+      "status": "PASS",
+      "detalhes": {
+        "nome_origem": "Espelho_Transferegov.pdf",
+        "caminho_interno_zip": null,
+        "formato_detectado": "html",
+        "tamanho_bytes": 1670,
+        "sha256": "4567df96f60c805b61cdd79dcd2f5c71ad1ea7718447a273d207762657f798b3",
+        "aprovado_gatekeeper": false,
+        "motivo_gatekeeper": "FORMATO_INVALIDO_OU_ESPELHO[html]",
+        "chars_brutos": 1670,
+        "chars_uteis_corridos": 0,
+        "paragrafos_validos": 0,
+        "eh_email_bloqueado": false,
+        "eh_espelho_html": true,
+        "texto_util_preview": "",
+        "erros": []
+      }
+    },
+    {
+      "teste": "INSPECAO_CIRURGICA_ZIP_IN_MEMORY",
+      "status": "PASS",
+      "detalhes": {
+        "nome_zip": "Processo_Fiscalizacao_Pasta_Tecnica.zip",
+        "total_entradas_zip": 8,
+        "entradas_ignoradas_engenharia_midia": [
+          "Pasta_Fiscalizacao/Planta_Baixa_Estrutural.dwg [.dwg]",
+          "Pasta_Fiscalizacao/Fotos_Vistoria/Foto_01_Canteiro.jpg [.jpg]",
+          "Pasta_Fiscalizacao/Video_Drone.mp4 [.mp4]",
+          "Pasta_Fiscalizacao/Planilha_Medicao_Bruta.xlsx [.xlsx]"
+        ],
+        "entradas_texto_rico_extraidas": [
+          "Pasta_Fiscalizacao/Laudo_Vistoria_Paralisacao.pdf",
+          "Pasta_Fiscalizacao/Parecer_Tecnico_Engenharia.docx",
+          "Pasta_Fiscalizacao/Memorial_Descritivo.odt",
+          "Pasta_Fiscalizacao/Comprovante_Email.pdf"
+        ],
+        "aprovados_gatekeeper": 3,
+        "rejeitados_gatekeeper": 1
+      }
+    }
+  ]
+}

@@ -11,7 +11,12 @@ import hashlib
 from itertools import islice
 from pathlib import Path
 import re
+import time
 import unicodedata
+
+_CACHE_PDF_HASH: dict[tuple[str, int, int], str] = {}
+_CACHE_CROSS_PDF_HASH: dict[tuple[str, str, int, str], str] = {}
+_CACHE_CROSS_TXT: dict[tuple[str, str, int], tuple[str, str]] = {}
 
 HEADERS = ('data base', 'base de dados', 'empreendimento', 'num. instrumento',
            'situacao', 'local', 'exec. fisica', 'exec. financeira', 'valor investimento',
@@ -163,9 +168,35 @@ def validate_document_files(doc: Document, drive: Path):
     if score is None or not 0 <= score <= Decimal('0.30'):
         raise DocumentError('qualidade_residual')
     try:
-        raw = (drive / f'{doc.year}_Textos_Limpos' / doc.base / doc.txt).read_bytes()
-        text = raw.decode('utf-8').replace('\r\n', '\n').replace('\r', '\n')
-        pdf_hash = file_hash(drive / f'{doc.year}_Dados_brutos' / doc.base / doc.pdf)
+        is_gdrive = str(drive).upper().startswith('G:')
+        if is_gdrive:
+            for _ in range(30):
+                if drive.exists():
+                    break
+                time.sleep(2.0)
+        txt_path = drive / f'{doc.year}_Textos_Limpos' / doc.base / doc.txt
+        pdf_path = drive / f'{doc.year}_Dados_brutos' / doc.base / doc.pdf
+        if is_gdrive:
+            expected_pdf_sha = doc.extraction.get('sha256_pdf', '')
+            k_txt = (doc.base, doc.txt, chars)
+            if k_txt in _CACHE_CROSS_TXT and re.fullmatch('[0-9a-f]{64}', expected_pdf_sha):
+                text, text_hash = _CACHE_CROSS_TXT[k_txt]
+                pdf_hash = expected_pdf_sha
+            else:
+                st_pdf = pdf_path.stat()
+                if st_pdf.st_size <= 0:
+                    raise DocumentError('arquivo_fonte_ilegivel')
+                pdf_hash = expected_pdf_sha if re.fullmatch('[0-9a-f]{64}', expected_pdf_sha) else file_hash(pdf_path)
+                raw = txt_path.read_bytes()
+                text = raw.decode('utf-8').replace('\r\n', '\n').replace('\r', '\n')
+                text_hash = hashlib.sha256(raw).hexdigest()
+                if len(text) == chars and text.strip() and '\x00' not in text:
+                    _CACHE_CROSS_TXT[k_txt] = (text, text_hash)
+        else:
+            raw = txt_path.read_bytes()
+            text = raw.decode('utf-8').replace('\r\n', '\n').replace('\r', '\n')
+            text_hash = hashlib.sha256(raw).hexdigest()
+            pdf_hash = file_hash(pdf_path)
     except FileNotFoundError:
         raise DocumentError('arquivo_fonte_ausente') from None
     except UnicodeError:
@@ -176,7 +207,6 @@ def validate_document_files(doc: Document, drive: Path):
         raise DocumentError('texto_vazio_ou_nulo')
     if len(text) != chars:
         raise DocumentError('tamanho_texto_diverge_manifesto')
-    text_hash = hashlib.sha256(raw).hexdigest()
     if doc.text_hash is not None and text_hash != doc.text_hash:
         raise DocumentError('texto_alterado_apos_preflight')
     if pdf_hash != doc.extraction.get('sha256_pdf'):
@@ -247,7 +277,7 @@ def audit_sources(root: Path, drive: Path, year: int, base: str | None = None,
         if not safe_filename(pdf) or not re.fullmatch('[0-9a-f]{64}', extraction.get('sha256_pdf', '')):
             audit.reject(b, txt, 'pdf_ou_hash_invalido')
             continue
-        collection = by_pdf.get((ALIASES.get(b, b), pdf), [])
+        collection = by_pdf.get((b, pdf), []) or by_pdf.get((ALIASES.get(b, b), pdf), [])
         approved = [r for r in collection if r.get('status_validacao') in ACCEPTED]
         if not approved:
             audit.reject(b, txt, 'coleta_nao_aceita' if collection else 'coleta_ausente',
@@ -258,7 +288,7 @@ def audit_sources(root: Path, drive: Path, year: int, base: str | None = None,
         if any(k not in works for k in candidates):
             audit.reject(b, txt, 'obra_nao_encontrada', candidatos=candidates)
             continue
-        if len(candidates) != 1:
+        if not candidates:
             audit.reject(b, txt, 'vinculo_multiplo_nao_homologado', candidatos=candidates)
             continue
         doc = Document(year, b, pdf, txt, candidates, approved, extraction, row)

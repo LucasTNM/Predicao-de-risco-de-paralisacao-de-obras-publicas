@@ -541,8 +541,8 @@ def processar_pdf(
     densidade = res_nativo.densidade_media
     _, acao = avaliar_densidade(densidade)
 
-    # 4. Caso A: Texto nativo rico (>= 200 chars/página)
-    if acao == "ACEITAR_NATIVO":
+    # 4. Caso A: Texto nativo rico (>= 200 chars/página ou >= 800 chars nativos já validados pelo Gatekeeper)
+    if acao == "ACEITAR_NATIVO" or res_nativo.total_chars >= 800:
         res_nativo.tempo_segundos = round(time.perf_counter() - inicio, 4)
         return res_nativo
 

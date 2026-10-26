@@ -20,6 +20,12 @@ import unicodedata
 
 from src.inspect_pdf import avaliar_pdf, inspect_pdf, sha256_file
 from src.config import ARQUIVO_LOG_COLETA, logger
+from src.multiformato import (
+    MIN_CHARS_UTEIS_GATEKEEPER,
+    TERMOS_EMAIL_IMEDIATOS,
+    TERMOS_VITAIS_WHITELIST_PRIORITARIA,
+    detectar_comprovante_email,
+)
 
 # Lock de concorrência para escrita segura de logs em execuções paralelas (ThreadPool)
 _LOCK_CSV = threading.Lock()
@@ -28,19 +34,10 @@ _LOCK_CSV = threading.Lock()
 # CONSTANTES DE CURADORIA NLP / FILTRO DE QUALIDADE DOCUMENTAL
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Whitelist: termos que indicam documentos de alta relevância para NLP/RAG
-_WHITELIST_TERMOS = [
-    "edital", "termo de referência", "termo de referencia",
-    "projeto", "contrato", "matriz de risco", "mapa de risco",
-    "estudo técnico", "estudo tecnico", "memorial",
-    "termo aditivo", "aditivo", "termo de compromisso",
-    "convênio", "convenio", "minuta", "proposta",
-    "planilha orçamentária", "planilha orcamentaria",
-    "cronograma", "laudo", "relatório", "relatorio",
-    "nota técnica", "nota tecnica", "parecer",
-]
+# Whitelist prioritária: documentos vitais de engenharia, licitação e execução contratual
+_WHITELIST_TERMOS = list(TERMOS_VITAIS_WHITELIST_PRIORITARIA)
 
-# Blacklist: termos que indicam ruído burocrático sem valor para LLM
+# Blacklist: termos que indicam ruído burocrático quando não acompanhados de termo vital da whitelist
 _BLACKLIST_TERMOS = [
     "e-mail", "email", "comprovante", "leitura", "encaminhamento",
     "publicação", "publicacao", "despacho", "recibo",
@@ -49,8 +46,21 @@ _BLACKLIST_TERMOS = [
     "outlook", "enc:", "fw:", "re:",
 ]
 
-# Limite mínimo de caracteres úteis para um PDF ser considerado denso
-_MIN_CHARS_UTEIS = 300
+# Limite mínimo de caracteres para um documento ser considerado denso (Gatekeeper >= 800 chars)
+_MIN_CHARS_UTEIS = MIN_CHARS_UTEIS_GATEKEEPER
+
+# Sufixos das fichas sintéticas legadas geradas por FPDF na Sprint 1
+SUFIXOS_FICHAS_SINTETICAS = (
+    "_FichaTecnica_Saude.pdf",
+    "_FichaTecnica_FNDE.pdf",
+    "_Relatorio_Tecnico.pdf",
+)
+
+
+def eh_ficha_sintetica_legada(nome_arquivo: str) -> bool:
+    """Identifica se um arquivo de log refere-se a uma ficha sintética FPDF legada."""
+    nome = (nome_arquivo or "").strip()
+    return any(nome.endswith(suf) or suf in nome for suf in SUFIXOS_FICHAS_SINTETICAS)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -59,9 +69,14 @@ _MIN_CHARS_UTEIS = 300
 
 def filtro_pre_download_dom(texto_dom: str) -> tuple[bool, str]:
     """
-    BARREIRA 1 — INTERCEPTAÇÃO PRÉ-DOWNLOAD (DOM/HTML):
-    Analisa o texto extraído da tag <a> ou <td> da tabela do Transferegov
-    ANTES de disparar o .click() no Selenium.
+    BARREIRA 1 — INTERCEPTAÇÃO PRÉ-DOWNLOAD (DOM/HTML E METADADOS API):
+    1. Rejeita extensões pesadas de CAD/mídia/planilha (.dwg, .xlsx, .mp4, .rar),
+       mas PERMITE pacotes `.zip` e documentos `.pdf`, `.docx`, `.odt`, `.rtf`;
+    2. Bloqueia imediatamente cabeçalhos explícitos de e-mail / protocolo de leitura;
+    3. Prioriza `_WHITELIST_TERMOS` (Termos Aditivos, Memoriais, Projetos Básicos,
+       Pareceres Técnicos, Rescisões, Paralisações, Vistorias, Contratos, Editais),
+       impedindo falsos negativos quando o título contiver palavras como "publicação" ou "despacho";
+    4. Aplica `_BLACKLIST_TERMOS` aos demais itens sem termo vital.
 
     Retorna (deve_baixar: bool, motivo: str).
     """
@@ -70,17 +85,31 @@ def filtro_pre_download_dom(texto_dom: str) -> tuple[bool, str]:
     if not texto_lower:
         return True, "texto_dom_vazio"
 
-    # Blacklist tem prioridade: aborta imediatamente se encontrar ruído
-    for termo in _BLACKLIST_TERMOS:
-        if termo in texto_lower:
-            return False, f"BLACKLIST[{termo}]"
+    # Rejeita extensões binárias de CAD/planilha/mídia se explícitas no link
+    for ext_proibida in (".dwg", ".dxf", ".mp4", ".avi", ".xlsx", ".xls", ".csv", ".rar"):
+        if texto_lower.endswith(ext_proibida) or f"{ext_proibida} " in texto_lower:
+            return False, f"BLACKLIST[{ext_proibida}]"
 
-    # Whitelist opcional: se encontrar, libera com prioridade
+    # 1. Bloqueio imediato de e-mails explícitos e avisos de leitura
+    for termo_email in TERMOS_EMAIL_IMEDIATOS:
+        if termo_email in texto_lower:
+            return False, f"BLACKLIST[{termo_email}]"
+
+    # 2. Whitelist prioritária de engenharia e execução contratual
     for termo in _WHITELIST_TERMOS:
         if termo in texto_lower:
             return True, f"WHITELIST[{termo}]"
 
-    # Default: permite download (pode ser classificado na poda pós-download)
+    # 3. Blacklist geral para despachos/publicações/notificações sem termo vital
+    for termo in _BLACKLIST_TERMOS:
+        if termo in texto_lower:
+            return False, f"BLACKLIST[{termo}]"
+
+    # 4. Se for pacote .zip, libera para inspeção cirúrgica in-memory
+    if ".zip" in texto_lower:
+        return True, "WHITELIST[.zip]"
+
+    # Default: permite download para avaliação pelo Gatekeeper Pós-Download
     return True, "DEFAULT_PERMITIDO"
 
 
@@ -110,12 +139,16 @@ def verificar_duplicata_sha256(
     return False, file_hash
 
 
-def validar_densidade_textual(caminho_pdf: Path) -> tuple[bool, int, bool]:
+def validar_densidade_textual(
+    caminho_pdf: Path,
+    min_chars: int = _MIN_CHARS_UTEIS,
+) -> tuple[bool, int, bool]:
     """
-    BARREIRA 3 — PODA DE BAIXA DENSIDADE (HEURÍSTICA PÓS-DOWNLOAD):
-    Abre o PDF recém-baixado e extrai texto nativo.
-    Se texto_extraivel == False ou total_chars < _MIN_CHARS_UTEIS,
-    indica que o arquivo deve ser descartado.
+    BARREIRA 3 — PODA DE BAIXA DENSIDADE E GATEKEEPER ANTI-LIXO:
+    Abre o PDF recém-baixado, extrai texto nativo e verifica:
+    1. Se possui texto extraível;
+    2. Se não é um comprovante de envio de e-mail (`De:`, `Para:`, `Assunto:`, `Enviado em:`);
+    3. Se atinge a densidade mínima exigida (`>= 800` caracteres em produção).
 
     Retorna (aprovado: bool, total_chars: int, texto_extraivel: bool).
     """
@@ -130,7 +163,14 @@ def validar_densidade_textual(caminho_pdf: Path) -> tuple[bool, int, bool]:
     if not texto_extraivel:
         return False, total_chars, texto_extraivel
 
-    if total_chars < _MIN_CHARS_UTEIS:
+    texto_amostra = " ".join(
+        str(item.get("text") or "") for item in (insp.get("sample", {}).get("text") or [])
+    )
+    eh_email, _ = detectar_comprovante_email(texto_amostra)
+    if eh_email:
+        return False, total_chars, texto_extraivel
+
+    if total_chars < min_chars:
         return False, total_chars, texto_extraivel
 
     return True, total_chars, texto_extraivel
@@ -221,13 +261,17 @@ def carregar_chaves_log_existentes(caminho_csv: Path = ARQUIVO_LOG_COLETA) -> di
     return chaves_existentes
 
 
-def carregar_obras_concluidas(caminho_csv: Path = ARQUIVO_LOG_COLETA) -> set[tuple[str, str]]:
+def carregar_obras_concluidas(
+    caminho_csv: Path = ARQUIVO_LOG_COLETA,
+    ignorar_fichas_sinteticas: bool = True,
+) -> set[tuple[str, str]]:
     """
     PULO O(1) NO NÍVEL DO PIPELINE:
     Retorna um conjunto de tuplas (base_de_dados.lower(), id_obra.strip()) para todas
-    as obras que já possuem ao menos um documento com status VALIDADO ou
-    VALIDADO_COM_RESSALVAS no log CSV. Permite que o orquestrador pule a obra
-    inteira antes de abrir Selenium ou fazer requisição HTTP.
+    as obras que já possuem ao menos um documento AUTÊNTICO com status VALIDADO ou
+    VALIDADO_COM_RESSALVAS no log CSV.
+    Quando `ignorar_fichas_sinteticas=True` (padrão), fichas FPDF sintéticas legadas
+    não contam como obra concluída, permitindo recoleta de documentos autênticos.
     """
     obras_ok: set[tuple[str, str]] = set()
 
@@ -239,12 +283,18 @@ def carregar_obras_concluidas(caminho_csv: Path = ARQUIVO_LOG_COLETA) -> set[tup
             reader = csv.DictReader(f)
             for row in reader:
                 status = (row.get("status_validacao") or "").strip().upper()
+                nome_arq = (row.get("nome_arquivo") or "").strip()
+                if ignorar_fichas_sinteticas and eh_ficha_sintetica_legada(nome_arq):
+                    continue
                 if status in ("VALIDADO", "VALIDADO_COM_RESSALVAS"):
                     base = (row.get("base_de_dados") or "").strip().lower()
                     id_obra = (row.get("id_obra") or "").strip()
                     if base and id_obra:
                         obras_ok.add((base, id_obra))
-        logger.info(f"Cache de obras concluídas: {len(obras_ok)} obras com documentos válidos carregadas em memória O(1).")
+        logger.info(
+            f"Cache de obras concluídas ({caminho_csv.parent.name}): "
+            f"{len(obras_ok)} obras com documentos autênticos carregadas em memória O(1)."
+        )
     except Exception as exc:
         logger.warning(f"Não foi possível carregar cache de obras concluídas ({caminho_csv}): {exc}")
 

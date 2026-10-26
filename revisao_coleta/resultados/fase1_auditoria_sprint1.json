@@ -1,0 +1,237 @@
+{
+  "feature": "021-revisao-expansao-coleta",
+  "fase": "Fase 1 - Auditoria do que Deixamos para Trás (Diagnóstico da Sprint 1)",
+  "analise_estatica_codigo": {
+    "achados_codigo": {
+      "pncp_py": {
+        "linha_forcamento_pdf": "nome_arquivo = f\"{base_nome}_{identity['kind']}_{ano}_{seq}_{idx}_{sufixo}.pdf\" (linha 137)",
+        "bug_multiformato": "Força a extensão '.pdf' em 100% dos arquivos baixados do PNCP (mesmo quando o binário original é .zip, .docx, .odt ou .rar). Na Barreira 3 (validar_densidade_textual -> inspect_pdf), o arquivo falha na verificação de magic bytes `magic != b'%PDF-'`, retornando `extractable=False` e sendo descartado imediatamente como `PODA NLP (SEM_OCR)`!",
+        "endpoint_restrito": "Na Sprint 1 original, consultava apenas `/compras/{ano}/{seq}/arquivos` (fase licitatória/edital), sem buscar a lista de contratos derivados, `/contratos/{ano}/{seq}/termos` (Termos Aditivos / Termos de Rescisão) e seus respectivos arquivos anexos.",
+        "early_stop": "Linha 216 (`if arquivos_validados: break`) interrompe se houver múltiplas URLs assim que 1 arquivo é validado."
+      },
+      "transferegov_py": {
+        "linha_bloqueio_extensao": "if any(ext in nome_tabela.lower() for ext in ['.zip', '.xlsx', '.rar', '.dwg', '.csv']): continue (linha 179)",
+        "linha_forcamento_pdf": "nome_padrao = f\"{base_nome}_{num_convenio}_{idx}_{nome_sufixo}.pdf\" (linha 189)",
+        "bug_multiformato": "1) Bloqueia explicitamente qualquer linha da tabela cujo texto contenha '.zip', descartando pastas inteiras de fiscalização/projetos compactados. 2) Não extrai .docx, .doc, .odt ou .rtf: como renomeia qualquer anexo baixado para `.pdf`, arquivos Word/ODT/RTF/ZIP sem extensão explícita no texto da tabela são baixados como `.pdf` e imediatamente destruídos pela Barreira 3 (`magic != b'%PDF-'` -> `SEM_OCR`).",
+        "endpoint_restrito": "Navega exclusivamente para a aba inicial de Anexos da Proposta/Convênio (`DownloadAnexoConvenio` em `ResultadoDaConsultaDeConvenioSelecionarConvenio.do`), ignorando as abas de Execução, Acompanhamento de Obras / Laudos de Vistoria, Termos Aditivos, Ajustes do Plano de Trabalho e Restrições/Paralisação, além de não consultar a API de Dados Abertos (`api.transferegov.gestao.gov.br` / `api-publica.obrasgov.gestao.gov.br`)."
+      },
+      "tecnicos_py": {
+        "geracao_sintetica_exclusiva": "Não realiza nenhuma requisição HTTP/API aos portais do SISMOB (`sismobcidadao.saude.gov.br`), SIMEC Obras 2.0 (`simec.mec.gov.br/obras2`) ou CODEVASF. Apenas gera localmente via FPDF uma ficha sintética tabular (`gerar_pdf_relatorio_sismob`, `gerar_pdf_relatorio_simec`, `gerar_pdf_relatorio_codevasf`), que precisou ser expurgada na Sprint 7 (Feature 018) por conter vazamento direto do alvo (`situacao`)."
+      },
+      "utils_py_filtro_dom": {
+        "precedencia_invertida_blacklist": "Em `filtro_pre_download_dom` (linhas 74-81), `_BLACKLIST_TERMOS` é avaliada ANTES de `_WHITELIST_TERMOS` com match de substring simples (`if termo in texto_lower`). Como `_BLACKLIST_TERMOS` inclui palavras ubíquas da administração pública como `'despacho'`, `'publicação'`, `'publicacao'`, `'notificação'`, `'notificacao'`, `'comprovante'`, `'encaminhamento'` e `'leitura'`, qualquer documento técnico vital cujo título ou linha da tabela contenha essas palavras (ex.: 'Publicação do Contrato', 'Publicação de Termo Aditivo', 'Despacho Técnico de Paralisação', 'Notificação de Rescisão Contratual') é sumariamente bloqueado antes mesmo do download!",
+        "termos_ausentes_whitelist": [
+          "rescisão / rescisao",
+          "paralisação / paralisacao",
+          "vistoria",
+          "supervisão / supervisao",
+          "medição / medicao",
+          "inconformidade / restrição",
+          "apostilamento",
+          "ordem de serviço / ordem de servico"
+        ],
+        "falsos_negativos_em_12_casos_vitais": 8,
+        "simulacao_casos_vitais": [
+          {
+            "titulo_simulado": "Despacho Técnico de Paralisação de Obra e Parecer de Engenharia.pdf",
+            "aprovado_sprint1": false,
+            "motivo_sprint1": "BLACKLIST[despacho]"
+          },
+          {
+            "titulo_simulado": "Publicação do 1º Termo Aditivo de Prazo e Valor ao Contrato.pdf",
+            "aprovado_sprint1": false,
+            "motivo_sprint1": "BLACKLIST[publicação]"
+          },
+          {
+            "titulo_simulado": "Notificação de Rescisão Contratual por Abandono de Obra e Laudo de Vistoria.pdf",
+            "aprovado_sprint1": false,
+            "motivo_sprint1": "BLACKLIST[notificação]"
+          },
+          {
+            "titulo_simulado": "E-mail de Encaminhamento do Memorial Descritivo e Projeto Básico Revisado.pdf",
+            "aprovado_sprint1": false,
+            "motivo_sprint1": "BLACKLIST[e-mail]"
+          },
+          {
+            "titulo_simulado": "Comprovante de Vistoria Técnica e Relatório Fotográfico de Medição.pdf",
+            "aprovado_sprint1": false,
+            "motivo_sprint1": "BLACKLIST[comprovante]"
+          },
+          {
+            "titulo_simulado": "Despacho de Aprovação do Projeto Básico e Memorial Descritivo.docx",
+            "aprovado_sprint1": false,
+            "motivo_sprint1": "BLACKLIST[despacho]"
+          },
+          {
+            "titulo_simulado": "Publicação de Termo de Rescisão Unilateral do Contrato.pdf",
+            "aprovado_sprint1": false,
+            "motivo_sprint1": "BLACKLIST[publicação]"
+          },
+          {
+            "titulo_simulado": "Notificação Técnica sobre Inconformidades no Cronograma Físico-Financeiro.pdf",
+            "aprovado_sprint1": false,
+            "motivo_sprint1": "BLACKLIST[notificação]"
+          },
+          {
+            "titulo_simulado": "Termo Aditivo nº 02/2024 - Prorrogação de Vigência.pdf",
+            "aprovado_sprint1": true,
+            "motivo_sprint1": "WHITELIST[termo aditivo]"
+          },
+          {
+            "titulo_simulado": "Relatório de Vistoria e Supervisão de Obra Paralisada.pdf",
+            "aprovado_sprint1": true,
+            "motivo_sprint1": "WHITELIST[relatório]"
+          },
+          {
+            "titulo_simulado": "Termo de Rescisão Amigável / Unilateral de Contrato.pdf",
+            "aprovado_sprint1": true,
+            "motivo_sprint1": "WHITELIST[contrato]"
+          },
+          {
+            "titulo_simulado": "Parecer Técnico de Engenharia - Readequação de Projeto.pdf",
+            "aprovado_sprint1": true,
+            "motivo_sprint1": "WHITELIST[projeto]"
+          }
+        ]
+      }
+    }
+  },
+  "mineracao_logs_sprint1": {
+    "resumo_executivo_numeros": {
+      "total_linhas_log_auditadas": 103536,
+      "total_bloqueados_barreira1_dom_e_api": 9363,
+      "total_bloqueados_barreira1_transferegov_dom": 9269,
+      "total_bloqueados_barreira1_pncp_api": 94,
+      "total_duplicatas_barreira2_sha256": 104,
+      "total_descartados_barreira3_poda_nlp_ou_nao_pdf": 3614,
+      "total_anexos_ignorados_pre_download_extensao_zip_xlsx_dwg_v1": 5772,
+      "total_arquivos_afetados_por_restricao_formato_ou_sem_ocr": 9386
+    },
+    "curadoria_por_base": {
+      "CAIXA": {
+        "obras_com_filtragem": 6173,
+        "barreira1_dom_api": 9025,
+        "barreira2_sha256": 28,
+        "barreira3_poda_nlp": 3028
+      },
+      "FUNASA": {
+        "obras_com_filtragem": 238,
+        "barreira1_dom_api": 133,
+        "barreira2_sha256": 0,
+        "barreira3_poda_nlp": 203
+      },
+      "CODEVASF": {
+        "obras_com_filtragem": 1,
+        "barreira1_dom_api": 1,
+        "barreira2_sha256": 0,
+        "barreira3_poda_nlp": 0
+      },
+      "SIMEC": {
+        "obras_com_filtragem": 102,
+        "barreira1_dom_api": 111,
+        "barreira2_sha256": 0,
+        "barreira3_poda_nlp": 181
+      },
+      "DNIT": {
+        "obras_com_filtragem": 204,
+        "barreira1_dom_api": 93,
+        "barreira2_sha256": 76,
+        "barreira3_poda_nlp": 202
+      }
+    },
+    "detalhe_bloqueios_pncp_api": {
+      "total_eventos_filtro_api": 94,
+      "por_termo_blacklist": {
+        "despacho": 9,
+        "e-mail": 1,
+        "publicacao": 3,
+        "recibo": 3,
+        "publicação": 76,
+        "email": 2
+      },
+      "contratos_bloqueados_por_termo_publicacao": 79,
+      "documentos_bloqueados_por_termo_despacho": 9,
+      "amostra_logs": [
+        "Doc 2/3: 'Ato que autoriza a Contratação Direta AU' -> BLOQUEADO (BLACKLIST[despacho])",
+        "Doc 1/1: 'Aviso de Contratação Direta SEI_DNIT - 1' -> BLOQUEADO (BLACKLIST[despacho])",
+        "Doc 1/3: 'Outros Documentos Despacho (DNIT) de hom' -> BLOQUEADO (BLACKLIST[despacho])",
+        "Doc 1/5: 'Outros Documentos E-mail Encaminha Orcam' -> BLOQUEADO (BLACKLIST[e-mail])",
+        "Doc 3/4: 'Outros Documentos SEI_DNIT - 17777160 - ' -> BLOQUEADO (BLACKLIST[despacho])",
+        "Doc 4/4: 'Outros Documentos SEI_DNIT - 16122598 - ' -> BLOQUEADO (BLACKLIST[despacho])",
+        "Doc 1/4: 'Outros Documentos SEI_DNIT - 17490816 - ' -> BLOQUEADO (BLACKLIST[despacho])",
+        "Doc 4/4: 'Outros Documentos SEI_DNIT - 17491376 - ' -> BLOQUEADO (BLACKLIST[publicacao])",
+        "Doc 3/4: 'Outros Documentos SEI_DNIT - 18694990 - ' -> BLOQUEADO (BLACKLIST[despacho])",
+        "Doc 2/4: 'Outros Documentos Guia de Recibo de Gara' -> BLOQUEADO (BLACKLIST[recibo])",
+        "Doc 3/4: 'Outros Documentos Publicação do Contrato' -> BLOQUEADO (BLACKLIST[publicação])",
+        "Doc 4/4: 'Outros Documentos Guia de Recibo de Gara' -> BLOQUEADO (BLACKLIST[recibo])",
+        "Doc 1/1: 'Aviso de Contratação Direta despacho' -> BLOQUEADO (BLACKLIST[despacho])",
+        "Doc 1/1: 'Outros Documentos email_CEP_17.11.pdf' -> BLOQUEADO (BLACKLIST[email])",
+        "Doc 2/4: 'Outros Documentos Guia de Recibo de Gara' -> BLOQUEADO (BLACKLIST[recibo])",
+        "Doc 3/4: 'Outros Documentos Publicação do Contrato' -> BLOQUEADO (BLACKLIST[publicação])",
+        "Doc 2/149: 'Outros Documentos Publicação do Contrato' -> BLOQUEADO (BLACKLIST[publicação])",
+        "Doc 3/149: 'Outros Documentos Publicação do Contrato' -> BLOQUEADO (BLACKLIST[publicação])",
+        "Doc 4/149: 'Outros Documentos Publicação do Contrato' -> BLOQUEADO (BLACKLIST[publicação])",
+        "Doc 5/149: 'Outros Documentos Publicação do Contrato' -> BLOQUEADO (BLACKLIST[publicação])",
+        "Doc 6/149: 'Outros Documentos Publicação do Contrato' -> BLOQUEADO (BLACKLIST[publicação])",
+        "Doc 7/149: 'Outros Documentos Publicação do Contrato' -> BLOQUEADO (BLACKLIST[publicação])",
+        "Doc 8/149: 'Outros Documentos Publicação do Contrato' -> BLOQUEADO (BLACKLIST[publicação])",
+        "Doc 9/149: 'Outros Documentos Publicação do Contrato' -> BLOQUEADO (BLACKLIST[publicação])",
+        "Doc 10/149: 'Outros Documentos Publicação do Contrato' -> BLOQUEADO (BLACKLIST[publicação])"
+      ]
+    },
+    "detalhe_poda_barreira3": {
+      "contagem_eventos_log_detalhado": {
+        "CAIXA_SEM_OCR_OU_NAO_PDF": 2725,
+        "CAIXA_BAIXA_DENSIDADE_MENOR_300_CHARS": 72,
+        "DNIT_SEM_OCR_OU_NAO_PDF": 199,
+        "DNIT_BAIXA_DENSIDADE_MENOR_300_CHARS": 3
+      },
+      "pncp_tipos_descartados_sem_ocr_ou_zip_docx": {
+        "Edital": 125,
+        "Termo_de_Refer_ncia": 16,
+        "Aviso_de_Contrata__o_Direta": 38,
+        "Outros_Documentos": 18,
+        "Estudo_T_cnico_Preliminar": 2,
+        "DFD": 1,
+        "Minuta_do_Contrato": 1,
+        "Ata_de_Registro_de_Pre_o": 1
+      }
+    },
+    "detalhe_transferegov_v1_anexos": {
+      "obras_com_anexos_listados": 3467,
+      "total_anexos_listados_na_aba_inicial": 30049,
+      "total_anexos_baixados": 24277,
+      "total_anexos_pulados_extensao_zip_xlsx_rar_dwg_ou_cache": 5772
+    },
+    "log_coleta_csv_drive": {
+      "existe": true,
+      "total_registros_log_coleta": 15409,
+      "fichas_sinteticas_geradas_fpdf": 14709,
+      "documentos_reais_baixados_web_api": 700,
+      "por_base": {
+        "FUNASA": 12,
+        "SIMEC": 7786,
+        "SISMOB": 6896,
+        "DNIT": 526,
+        "CAIXA": 162,
+        "CODEVASF": 27
+      },
+      "por_tipo_documento": {
+        "TERMO_REFERENCIA": 95,
+        "CONTRATO": 156,
+        "TERMO_COMPROMISSO": 7817,
+        "CONVENIO": 6901,
+        "EDITAL": 318,
+        "PROJETO_BASICO": 10,
+        "OUTRO": 89,
+        "FISCALIZACAO": 5,
+        "RELATORIO": 10,
+        "TERMO_ADITIVO": 8
+      },
+      "por_status_validacao": {
+        "VALIDADO": 15151,
+        "VALIDADO_COM_RESSALVAS": 258
+      }
+    }
+  }
+}

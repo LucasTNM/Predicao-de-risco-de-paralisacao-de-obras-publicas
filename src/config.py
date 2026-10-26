@@ -63,6 +63,7 @@ GEMINI_TEMPERATURA = 0.1
 
 # Pastas multi-ano e limiar de acionamento seletivo da Camada 2.
 ANOS_DISPONIVEIS = ["2025", "2026"]
+ANOS_PAINEL_TCU = ["2022", "2023", "2024", "2025", "2026"]
 PASTA_TEXTOS_LIMPOS = BASE_DRIVE / f"{ANO_BASE}_Textos_Limpos"
 LIMIAR_SUJEIRA_LLM: float = 0.30
 
@@ -125,12 +126,27 @@ DEFAULT_HEADERS = {
 }
 
 
-def obter_pasta_base(nome_base: str) -> Path:
+def obter_pasta_dados_brutos(ano_base: str = ANO_BASE) -> Path:
+    """Retorna a pasta de dados brutos no Google Drive para um ano-base específico."""
+    return BASE_DRIVE / f"{str(ano_base).strip()}_Dados_brutos"
+
+
+def obter_arquivo_log_coleta(ano_base: str = ANO_BASE) -> Path:
+    """Retorna o caminho do log_coleta.csv no Google Drive para um ano-base específico."""
+    return obter_pasta_dados_brutos(ano_base) / "log_coleta.csv"
+
+
+def obter_planilha_origem(ano_base: str = ANO_BASE) -> Path:
+    """Retorna o caminho da planilha local data_{ano_base}.xlsx."""
+    return ROOT_DIR / f"data_{str(ano_base).strip()}.xlsx"
+
+
+def obter_pasta_base(nome_base: str, ano_base: str = ANO_BASE) -> Path:
     """
     Retorna e garante a existência da pasta de partição da base no Google Drive.
     Exemplo: G:\\Meu Drive\\TCC_DOCUMENTOS\\2025_Dados_brutos\\dnit\\
     """
-    pasta = PASTA_DADOS_BRUTOS / nome_base.strip().lower()
+    pasta = obter_pasta_dados_brutos(ano_base) / nome_base.strip().lower()
     try:
         pasta.mkdir(parents=True, exist_ok=True)
     except Exception as exc:

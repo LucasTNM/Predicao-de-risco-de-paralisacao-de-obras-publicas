@@ -29,7 +29,9 @@ from src.extractors.pncp import coletar_obra_pncp
 
 
 def criar_pdf(caminho: Path, texto: str) -> Path:
+    from datetime import datetime, timezone
     pdf = FPDF()
+    pdf.creation_date = datetime(2024, 1, 1, tzinfo=timezone.utc)
     pdf.add_page()
     pdf.set_font("Helvetica", size=12)
     pdf.multi_cell(0, 10, text=texto)
@@ -69,7 +71,7 @@ class TestPipelineIntegrado(unittest.TestCase):
             "REGIME DE EXECUÇÃO: EMPREITADA POR PREÇO GLOBAL CONFORME LEI FEDERAL 14.133/2021. "
             "PROJETO BÁSICO E PLANILHA ORÇAMENTÁRIA ANEXOS AO PRESENTE INSTRUMENTO CONVOCATÓRIO. "
             "FISCALIZAÇÃO A CARGO DA SUPERINTENDÊNCIA REGIONAL DO DNIT."
-        ) * 2
+        ) * 3
         temp_pdf_2 = self.root_path / "temp_edital.pdf"
         criar_pdf(temp_pdf_2, texto_edital)
 
