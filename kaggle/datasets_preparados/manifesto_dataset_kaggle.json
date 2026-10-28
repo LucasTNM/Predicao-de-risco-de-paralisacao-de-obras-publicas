@@ -1,0 +1,94 @@
+{
+  "versao": 2,
+  "gerado_em_utc": "2026-10-27T22:03:48.143117+00:00",
+  "semente_folds": 42,
+  "colunas": [
+    "id_fato",
+    "id_obra",
+    "id_tcu",
+    "ano",
+    "particao",
+    "fold_cv",
+    "base",
+    "uf",
+    "municipio",
+    "valor_investimento",
+    "valor_desbloqueado",
+    "exec_fisica",
+    "exec_financeira",
+    "label_risco",
+    "label_binario",
+    "tem_texto",
+    "n_chunks",
+    "caracteres_texto",
+    "chunks",
+    "texto_integral",
+    "gte_c2"
+  ],
+  "colunas_removidas_por_vazamento": [
+    "situacao_cadastral",
+    "situacao_origem",
+    "causa_cadastral",
+    "origem_rotulo",
+    "status_rotulagem"
+  ],
+  "colunas_removidas_outras": [
+    "embedding",
+    "has_embedding",
+    "num_docs_validos",
+    "num_chunks_validos"
+  ],
+  "origem_embeddings": "dados_processados/sprint7/embeddings_c2_sem_fichas.npz (GTE multilingual base, 768d)",
+  "estatisticas": {
+    "treino_dev": {
+      "total_obras": 14522,
+      "obras_com_texto": 3088,
+      "distribuicao_classes": {
+        "0": 13319,
+        "1": 782,
+        "2": 83,
+        "3": 338
+      },
+      "distribuicao_classes_com_texto": {
+        "0": 2359,
+        "1": 672,
+        "2": 10,
+        "3": 47
+      },
+      "chunks_por_obra_com_texto": {
+        "1": 83,
+        "2": 104,
+        "3": 56,
+        "4": 2845
+      },
+      "media_caracteres_com_texto": 5233.8
+    },
+    "teste_retido": {
+      "total_obras": 3632,
+      "obras_com_texto": 739,
+      "distribuicao_classes": {
+        "0": 3330,
+        "1": 196,
+        "2": 21,
+        "3": 85
+      },
+      "distribuicao_classes_com_texto": {
+        "0": 562,
+        "1": 163,
+        "2": 2,
+        "3": 12
+      },
+      "chunks_por_obra_com_texto": {
+        "1": 21,
+        "2": 24,
+        "3": 21,
+        "4": 673
+      },
+      "media_caracteres_com_texto": 5179.1
+    }
+  },
+  "arquivos_sha256": {
+    "treino_dev_completo.parquet": "48cc141d926482117953ac1936d84279feb7f7ea6a5de178100d569f4529bdf8",
+    "teste_retido_completo.parquet": "b218dae6e582ff8bdfbdb9527520ffe029c839cf831a6f0f7d65e054382aace5"
+  }
+}
