@@ -34,7 +34,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT_DIR / ".env")
 
 # Caminho raiz obrigatório no Google Drive (Windows)
-BASE_DRIVE = Path(r"G:\Meu Drive\TCC_DOCUMENTOS")
+BASE_DRIVE = Path(os.getenv("BASE_DRIVE", r"G:\Meu Drive\TCC_DOCUMENTOS"))
 
 # Particionamento anual de dados brutos no Drive (ex: G:\Meu Drive\TCC_DOCUMENTOS\2025_Dados_brutos)
 PASTA_DADOS_BRUTOS = BASE_DRIVE / f"{ANO_BASE}_Dados_brutos"
@@ -76,9 +76,9 @@ CHUNKING_VERSION = os.getenv("CHUNKING_VERSION", "sliding-window-v1")
 # PARÂMETROS E CONSTANTES DE EXTRAÇÃO DE TEXTO & OCR (SPRINT 2)
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Localização padrão dos binários nativos no Windows
-TESSERACT_CMD = Path(r"C:\Program Files\Tesseract-OCR\tesseract.exe")
-POPPLER_PATH = Path(r"C:\Users\lucas\AppData\Local\Programs\MiKTeX\miktex\bin\x64")
+# Localização padrão dos binários nativos no Windows (sobrescrevível via .env)
+TESSERACT_CMD = Path(os.getenv("TESSERACT_CMD", r"C:\Program Files\Tesseract-OCR\tesseract.exe"))
+POPPLER_PATH = Path(os.getenv("POPPLER_PATH", r"C:\Program Files\poppler\Library\bin"))
 
 # Limiares de Decisão de Densidade (caracteres úteis / página)
 LIMIAR_DENSIDADE_NATIVO: float = 200.0   # >= 200: Aceita extração nativa rápida
