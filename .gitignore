@@ -11,16 +11,31 @@ datasets/
 *.xlsx
 *.xls
 *.csv
+!kaggle/resultados_kaggle/*.csv
+!kaggle/resultados_validacao_local/*.csv
+!kaggle/resultados_kaggle/*.json
+!kaggle/resultados_validacao_local/*.json
 *.parquet
+*.npz
+!src/rag/consultas_causais_vetores.npz
 *.feather
 *.jsonl
 *.sqlite
 *.db
 *.sqlite3
 
+# ─── PESOS DE MODELOS E CHECKPOINTS LOCAIS ───────────────────────────────────
+modelos/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+
 # ─── ARQUIVOS DE DOCUMENTAÇÃO E TRABALHOS ACADÊMICOS LOCAIS ─────────────────
 docs/
 Projeto_de_Conclusao_de_curso/
+artigo-tcc/
 *.pdf
 *.docx
 *.pptx
@@ -34,6 +49,7 @@ coletor_editais.log
 
 # ─── SCRIPTS LEGADOS E EXPERIMENTAIS ────────────────────────────────────────
 scripts_legados/
+revisao_coleta/
 scratch/
 scratch_*.py
 0*.py
